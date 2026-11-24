@@ -1,0 +1,1985 @@
+<!doctype html>
+<html lang="de" class="dark">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nexora – Schulorganisation</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+:root{
+  --blue:#2563eb;--blue-hover:#1d4ed8;--blue-light:rgba(37, 99, 235, 0.15);
+  --bg:#090d16;--card:rgba(13, 19, 34, 0.75);--text:#f8fafc;--muted:#94a3b8;
+  --line:rgba(30, 41, 59, 0.8);--green:#10b981;--red:#ef4444;--orange:#f59e0b;
+  --shadow:0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  --r:16px;--transition:all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Inter', sans-serif, system-ui;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+
+/* Layout & Topbar */
+.topbar{height:72px;background:rgba(13, 19, 34, 0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 28px;gap:20px;position:sticky;top:0;z-index:50}
+.logo{font-size:20px;font-weight:800;color:#3b82f6;letter-spacing:-0.5px;display:flex;align-items:center;gap:8px}
+.logo span{color:var(--text)}
+.school-pill{font-size:13px;font-weight:500;color:var(--muted);background:rgba(19, 27, 46, 0.8);padding:6px 14px;border-radius:20px;border:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:250px}
+.top-actions{margin-left:auto;display:flex;gap:8px}
+
+.layout{display:flex;flex:1;min-height:calc(100vh - 72px)}
+.sidebar{width:280px;background:rgba(13, 19, 34, 0.8);backdrop-filter:blur(16px);border-right:1px solid var(--line);padding:24px 16px;display:flex;flex-direction:column;gap:6px;position:sticky;top:72px;height:calc(100vh - 72px);overflow-y:auto}
+.navbtn{display:flex;align-items:center;width:100%;border:0;background:transparent;text-align:left;padding:12px 16px;border-radius:var(--r);color:var(--muted);gap:14px;font-weight:500;font-size:14px;transition:var(--transition)}
+.navbtn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.navbtn.active,.navbtn:hover{background:var(--blue-light);color:#60a5fa;font-weight:600;box-shadow:0 4px 12px rgba(37,99,235,0.1)}
+.content{flex:1;padding:32px;overflow:auto;max-width:1400px;margin:0 auto;width:100%}
+
+/* Pages & Animation */
+.page{display:none;animation:fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* UI Elements */
+.card{background:var(--card);backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);transition:var(--transition)}
+h2{margin:0 0 6px;font-size:22px;font-weight:700;letter-spacing:-0.5px;color:#fff}
+.muted{color:var(--muted);font-size:13px}
+.row{display:flex;gap:12px;align-items:center}
+.between{justify-content:space-between}
+.wrap{flex-wrap:wrap}
+
+.primary{border:0;background:linear-gradient(135deg, #2563eb, #4f46e5);color:#fff;padding:12px 20px;border-radius:var(--r);font-weight:600;font-size:14px;transition:var(--transition);box-shadow:0 4px 16px rgba(37,99,235,0.3)}
+.primary:hover{background:linear-gradient(135deg, #1d4ed8, #4338ca);transform:translateY(-1px);box-shadow:0 6px 20px rgba(37,99,235,0.4)}
+.secondary{border:1px solid var(--line);background:rgba(19, 27, 46, 0.6);color:var(--text);padding:10px 18px;border-radius:var(--r);font-weight:500;font-size:14px;transition:var(--transition)}
+.secondary:hover{background:rgba(30, 41, 59, 0.8);border-color:#475569;color:#fff}
+.danger{border:0;background:rgba(239, 68, 68, 0.2);color:#f87171;border:1px solid rgba(239, 68, 68, 0.3);padding:8px 14px;border-radius:10px;font-size:13px;font-weight:500;transition:var(--transition)}
+.danger:hover{background:rgba(239, 68, 68, 0.3);color:#fff}
+
+label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin:16px 0 6px;text-transform:uppercase;letter-spacing:0.5px}
+input,select,textarea{width:100%;padding:12px 16px;border:1px solid var(--line);border-radius:12px;background:rgba(9, 13, 22, 0.6);color:var(--text);outline:none;font-size:14px;transition:var(--transition)}
+textarea{resize:vertical;min-height:100px}
+input:focus,select:focus,textarea:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,0.2)}
+
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:24px 0}
+.toolbar select,.toolbar input{width:auto;min-width:160px}
+
+.statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0}
+.stat{padding:24px;display:flex;flex-direction:column;gap:6px}
+.stat span{font-size:13px;font-weight:500;color:var(--muted)}
+.stat b{font-size:32px;font-weight:700;color:#fff;letter-spacing:-1px}
+
+.notice{padding:16px;background:rgba(245, 158, 11, 0.1);border:1px solid rgba(245, 158, 11, 0.2);border-radius:var(--r);color:#fbbf24;font-size:13px;margin-bottom:16px}
+
+/* Tables & Timetable */
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{padding:16px;border-bottom:1px solid var(--line);text-align:left;font-size:14px}
+.table th{background:rgba(19, 27, 46, 0.4);font-weight:600;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:0.5px}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+.timetable{width:100%; overflow-x:auto;-webkit-overflow-scrolling:touch}
+.grid{
+  display:grid;
+  grid-template-columns: 50px repeat(5, minmax(140px, 1fr));
+  grid-template-rows: 40px repeat(8, minmax(75px, auto));
+  min-width: 750px;
+}
+.grid>div{border-right:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden}
+.head{background:rgba(19, 27, 46, 0.6);font-weight:600;font-size:12px;color:var(--muted);display:flex;align-items:center;justify-content:center;text-align:center}
+.time{background:rgba(19, 27, 46, 0.3);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;font-weight:600}
+
+.lesson-slot{padding:4px;display:flex;gap:4px;height:100%}
+.lesson{border-radius:10px;padding:8px 10px;background:rgba(37,99,235,0.15);border-left-color:#3b82f6;cursor:pointer;transition:var(--transition);display:flex;flex-direction:column;justify-content:center;flex:1;min-width:0;position:relative}
+.lesson:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.4);filter:brightness(1.1)}
+.lesson strong{display:block;font-size:13px;font-weight:700;color:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lesson small{opacity:0.85;font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lesson.cancelled{background:rgba(239, 68, 68, 0.15) !important;border-left-color:#ef4444;color:#fca5a5;text-decoration:line-through}
+.lesson.substitution{background:rgba(16, 185, 129, 0.15) !important;border-left-color:#10b981;color:#6ee7b7}
+.lesson.exam{border:2px solid var(--orange) !important;}
+.badge{display:inline-block;font-size:10px;padding:2px 6px;border-radius:6px;font-weight:700;margin-top:4px;text-transform:uppercase;width:fit-content}
+.badge.red{background:rgba(239, 68, 68, 0.2);color:#fca5a5}
+.badge.green{background:rgba(16, 185, 129, 0.2);color:#6ee7b7}
+.badge.orange{background:rgba(245, 158, 11, 0.2);color:#fcd34d}
+.hw-icon{position:absolute;top:4px;right:6px;background:rgba(0,0,0,0.3);border-radius:4px;padding:2px 4px;font-size:10px;display:flex;align-items:center;gap:2px;font-weight:600;color:#fff}
+.empty{display:flex;align-items:center;justify-content:center;color:#475569;font-size:14px;height:100%;cursor:pointer;transition:var(--transition)}
+.empty:hover{background:rgba(255,255,255,0.03);color:#60a5fa}
+
+@media(max-width:768px){
+  .grid {
+    grid-template-columns: 45px repeat(5, minmax(110px, 1fr));
+    min-width: 600px;
+  }
+}
+
+/* Modals & Overlays */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(5, 8, 15, 0.8);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:16px;z-index:100;animation:fadeIn 0.2s ease}
+.modal-bg.show{display:flex}
+.modal{background:#0d1322;border:1px solid var(--line);border-radius:20px;width:min(520px,100%);padding:24px;box-shadow:0 25px 50px -12px rgba(0, 0, 0, 0.5);max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:16px}
+.login-card{width:min(440px,100%);padding:32px;border-radius:24px;background:rgba(13, 19, 34, 0.8);backdrop-filter:blur(20px);border:1px solid var(--line)}
+.login-card h1{margin:0 0 6px;font-size:26px;color:#fff}
+.sub{color:var(--muted);margin:0 0 24px;font-size:14px}
+.admin-link{display:block;margin-top:24px;text-align:center;color:var(--muted);font-size:13px;text-decoration:underline;cursor:pointer;transition:color 0.2s}
+.admin-link:hover{color:#fff}
+
+.toast{position:fixed;right:20px;bottom:20px;background:#1e293b;color:#fff;padding:14px 22px;border-radius:14px;display:none;z-index:200;font-size:14px;border:1px solid var(--line);box-shadow:0 10px 25px -5px rgba(0,0,0,0.5);animation:fadeIn 0.2s ease}
+.list{display:grid;gap:12px}
+.item{padding:16px;border:1px solid var(--line);border-radius:var(--r);background:var(--card);backdrop-filter:blur(12px);transition:var(--transition)}
+.item:hover{border-color:#475569;box-shadow:0 8px 24px rgba(0,0,0,0.2)}
+.small{font-size:12px}
+
+@media(max-width:1024px){
+  .sidebar{width:240px}
+  .statgrid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:768px){
+  .topbar{padding:0 16px;height:60px}
+  .layout{flex-direction:column;min-height:calc(100vh - 60px)}
+  .sidebar{width:100%;flex-direction:row;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:6px 12px;border-right:0;border-bottom:1px solid var(--line);position:sticky;top:60px;z-index:40;background:rgba(13,19,34,0.95);backdrop-filter:blur(12px);height:auto}
+  .navbtn{flex:0 0 auto;width:auto;padding:8px 12px;justify-content:center;gap:8px}
+  .navbtn span{display:none}
+  .navbtn svg{width:20px;height:20px}
+  .content{padding:16px}
+  .statgrid{grid-template-columns:1fr;gap:12px}
+  .toolbar{flex-direction:column;align-items:stretch}
+  .toolbar select,.toolbar input{width:100%;min-width:0}
+}
+
+
+/* Responsive Anpassung: Desktop, Tablet und Smartphone ohne horizontales Wischen */
+html, body, #app { max-width:100%; }
+body { overflow-x:hidden; }
+.content, .layout, .page, .card { min-width:0; }
+.timetable { overflow-x:hidden; width:100%; }
+.timetable .grid {
+  width:100%; min-width:0;
+  grid-template-columns:clamp(30px, 4.2vw, 50px) repeat(5, minmax(0, 1fr));
+  grid-template-rows:40px repeat(8, minmax(64px, auto));
+}
+.timetable .grid > div { min-width:0; }
+.timetable .head { font-size:clamp(9px, 1vw, 12px); padding:2px; overflow-wrap:anywhere; }
+.timetable .time { font-size:clamp(8px, .9vw, 11px); padding:1px; }
+.timetable .lesson-slot { padding:2px; gap:2px; min-width:0; }
+.timetable .lesson { padding:5px 4px; border-radius:6px; overflow:hidden; }
+.timetable .lesson strong { white-space:normal; overflow-wrap:anywhere; text-overflow:clip; font-size:clamp(8px, .95vw, 13px); line-height:1.15; }
+.timetable .lesson small { white-space:normal; overflow-wrap:anywhere; text-overflow:clip; font-size:clamp(7px, .8vw, 11px); line-height:1.15; }
+.timetable .badge { font-size:clamp(6px, .7vw, 10px); padding:1px 3px; }
+.timetable .hw-icon { right:2px; top:2px; font-size:8px; padding:1px 2px; }
+@media (min-width:769px) and (max-width:1100px) {
+  .content { padding:20px; }
+  .sidebar { width:220px; }
+  .timetable .grid { grid-template-rows:38px repeat(8, minmax(66px, auto)); }
+}
+@media (max-width:768px) {
+  .topbar { padding:0 12px; gap:8px; }
+  .logo { font-size:18px; }
+  .school-pill { max-width:38vw; font-size:11px; padding:5px 8px; }
+  .content { padding:10px; }
+  .timetable .grid { grid-template-columns:30px repeat(5, minmax(0,1fr)); grid-template-rows:34px repeat(8, minmax(66px,auto)); }
+  .timetable .head { font-size:9px; }
+  .timetable .time { font-size:8px; }
+  .timetable .lesson { padding:4px 2px; }
+  .timetable .lesson strong { font-size:8px; }
+  .timetable .lesson small { font-size:7px; }
+  .timetable .badge { font-size:6px; letter-spacing:0; }
+  .toolbar { gap:8px; }
+  .row { flex-wrap:wrap; }
+  .table th,.table td { padding:9px; font-size:12px; }
+  .statgrid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .stat { padding:14px; }
+  .stat b { font-size:25px; }
+}
+@media (max-width:380px) {
+  .content { padding:6px; }
+  .timetable .grid { grid-template-columns:26px repeat(5,minmax(0,1fr)); grid-template-rows:32px repeat(8,minmax(60px,auto)); }
+  .timetable .head { font-size:8px; }
+  .timetable .lesson strong { font-size:7px; }
+  .timetable .lesson small { font-size:6px; }
+  .timetable .lesson-slot { padding:1px; }
+  .school-pill { display:none; }
+}
+
+
+/* Mobile-/Tablet-Fix: vollständige Navigation mit Symbol UND Beschriftung */
+@media (max-width: 768px) {
+  .layout {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .sidebar {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: stretch;
+    gap: 6px;
+    width: 100% !important;
+    max-width: 100%;
+    height: auto !important;
+    min-height: 56px;
+    box-sizing: border-box;
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    padding: 8px 10px !important;
+    position: sticky;
+    top: 60px;
+    z-index: 40;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+  .navbtn {
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: max-content;
+    min-height: 44px;
+    align-items: center;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    padding: 9px 12px !important;
+    white-space: nowrap;
+  }
+  .navbtn span {
+    display: inline !important;
+    visibility: visible !important;
+    font-size: 13px;
+  }
+  .navbtn svg {
+    display: block !important;
+    visibility: visible !important;
+    width: 20px !important;
+    height: 20px !important;
+    flex: 0 0 20px;
+  }
+  .content {
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+@media (max-width: 380px) {
+  .sidebar { padding: 6px !important; gap: 4px; }
+  .navbtn { padding: 8px 10px !important; }
+}
+
+
+.login-update-link{position:fixed;right:18px;bottom:18px;z-index:120;display:flex;align-items:center;gap:8px;padding:10px 16px;border:1px solid var(--line);border-radius:999px;background:#111b2d;color:#eaf1ff;box-shadow:0 8px 24px rgba(0,0,0,.28);cursor:pointer;font:inherit}
+.login-update-link svg{width:17px;height:17px}
+.login-update-link:hover{border-color:#60a5fa;background:#172640}
+.update-card{padding:18px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.update-card h3{margin:0 0 8px;color:#fff;font-size:17px}
+.update-card .update-date{font-size:12px;color:var(--muted);margin-bottom:10px}
+.update-description{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}
+@media(max-width:480px){.login-update-link{right:12px;bottom:12px;padding:9px 13px}}
+
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="modalBg" class="modal-bg"><div class="modal" id="modal"></div></div>
+<div id="toast" class="toast"></div>
+
+<script>
+// Erkennt die Geräteklasse anhand der verfügbaren Viewportbreite und passt das Layout beim Drehen/Ändern an.
+(function(){
+  function setDeviceClass(){
+    const w=window.innerWidth||document.documentElement.clientWidth;
+    document.documentElement.dataset.device = w <= 768 ? 'phone' : (w <= 1100 ? 'tablet' : 'desktop');
+  }
+  setDeviceClass(); window.addEventListener('resize', setDeviceClass, {passive:true});
+})();
+const SUPABASE_URL="https://ngbxvudichaooqxhjvei.supabase.co";
+const SUPABASE_KEY="sb_publishable_Iuni12vkgScCnAvrteXBwg_KrnOxYAr";
+const DAYS=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag"],TIMES=["08:00","08:45","09:40","10:25","11:20","12:05","13:00","13:45"];
+let data={schools:[],messages:[],homework:[],calendar:[],weekOverrides:[],teachers:[],students:[],attendance:[],grades:[],classbookEntries:[],problemReports:[],updates:[]},session=null,currentPage=null;
+let currentOffsetWeeks = 0;
+
+const SESSION_STORAGE_KEY="untas_session_v15";
+const PAGE_STORAGE_KEY="untas_page_v15";
+
+function savePersistentState(){
+  try{
+    if(session) localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+    else localStorage.removeItem(SESSION_STORAGE_KEY);
+    if(currentPage) localStorage.setItem(PAGE_STORAGE_KEY,currentPage);
+  }catch(e){}
+}
+
+function restorePersistentState(){
+  try{
+    const raw=localStorage.getItem(SESSION_STORAGE_KEY);
+    const savedPage=localStorage.getItem(PAGE_STORAGE_KEY);
+    if(raw) session=JSON.parse(raw);
+    if(savedPage) currentPage=savedPage;
+  }catch(e){
+    session=null;
+    currentPage=null;
+  }
+}
+
+async function api(path,options={}){
+ const headers={"apikey":SUPABASE_KEY,"Authorization":"Bearer "+(session?.accessToken||SUPABASE_KEY),"Content-Type":"application/json","Prefer":"return=representation",...(options.headers||{})};
+ const r=await fetch(SUPABASE_URL+"/rest/v1/"+path,{...options,headers});
+ if(!r.ok)throw new Error(await r.text());
+ return r.status===204?[]:await r.json();
+}
+
+async function loadData(){
+ let classbookLoadError = null;
+ const [schools,classes,lessons,overrides,homework,messages,calendar,teachers,students,attendance,grades,classbookResult,problemReports]=await Promise.all([
+  api("schools?select=*"),api("classes?select=id,school_id,name,username"),api("lessons?select=*"),api("week_overrides?select=*"),
+  api("homework?select=*"),api("messages?select=*"),api("calendar?select=*"),api("teachers?select=*"),
+  api("students?select=*").catch(()=>[]),api("attendance?select=*").catch(()=>[]),api("grades?select=*").catch(()=>[]),
+  api("classbook_entries?select=*&order=created_at.desc").then(rows=>({rows})).catch(error=>{classbookLoadError=error;return {rows:null};}),
+  api("problem_reports?select=*&order=created_at.desc").catch(error=>{console.warn("Problemmeldungen konnten nicht geladen werden",error);return [];})
+ ]);
+ if(classbookResult.rows===null){
+  console.error("Digitale Klassenbuch-Einträge konnten nicht aus Supabase geladen werden:",classbookLoadError);
+  if(!Array.isArray(data.classbookEntries)) data.classbookEntries=[];
+  window._classbookLoadError = String(classbookLoadError?.message||classbookLoadError||"Unbekannter Supabase-Fehler");
+ } else {
+  window._classbookLoadError = "";
+ }
+ const classbookEntries=classbookResult.rows || [];
+ data.schools=schools.map(s=>({id:s.id,name:s.name,city:s.city||"",announcements:s.announcements||[],
+  classes:classes.filter(c=>c.school_id===s.id).map(c=>({id:c.id,name:c.name,username:c.username})),
+  lessons:lessons.filter(l=>l.school_id===s.id).map(l=>{const m=parseLessonMeta(l.note||"");return {id:l.id,day:l.day,time:l.time_index,subject:l.subject,teacher:l.teacher||"",room:l.room||"",classId:l.class_id,note:m.note,color:m.color,isExam:m.isExam||false}})
+ }));
+ data.weekOverrides=overrides.map(o=>({id:o.id,lessonId:o.lesson_id,week:o.week,status:o.status,subTeacher:o.sub_teacher||"",subRoom:o.sub_room||"",note:o.note||"",isExam:o.is_exam??null,homeworkId:o.homework_id||""}));
+ data.homework=homework.map(h=>({id:h.id,title:h.title,text:h.text||"",date:h.due_date||"",classId:h.class_id,className:classes.filter(c=>c.id===h.class_id)?.name||"Alle"}));
+ data.messages=messages.map(m=>({id:m.id,title:m.title,text:m.text,date:m.created_at,schoolId:m.school_id}));
+ data.calendar=calendar.map(e=>({id:e.id,title:e.title,date:e.event_date||"",text:e.text||"",schoolId:e.school_id}));
+ data.teachers=teachers.map(t=>({id:t.id,schoolId:t.school_id,name:t.name,username:t.username,password:t.password_hash,subject:t.subject||""}));
+ data.students=students.map(st=>({id:st.id,schoolId:st.school_id,classId:st.class_id,name:st.name}));
+ data.attendance=attendance.map(a=>({id:a.id,schoolId:a.school_id,classId:a.class_id,studentName:a.student_name,date:a.date,timeIndex:a.time_index,status:a.status,lateMinutes:a.late_minutes||0,note:a.note||""}));
+ data.grades=grades.map(g=>({id:g.id,schoolId:g.school_id,classId:g.class_id,studentName:g.student_name,subject:g.subject,gradeType:g.grade_type,gradeValue:g.grade_value}));
+ if(classbookResult.rows!==null) data.classbookEntries=classbookEntries.map(e=>({id:e.id,schoolId:e.school_id,classId:e.class_id,studentName:e.student_name,entryType:e.entry_type,title:e.title,description:e.description,date:e.entry_date,author:e.author||"",createdAt:e.created_at}));
+ data.problemReports=(problemReports||[]).map(r=>({id:r.id,schoolId:r.school_id||"",reporterType:r.reporter_type||"Unbekannt",reporterName:r.reporter_name||"",title:r.title||"",description:r.description||"",status:r.status||"offen",createdAt:r.created_at}));
+}
+
+function getSchoolSubjects(schoolId){
+  const s = data.schools.find(x => x.id === schoolId);
+  const subs = new Set();
+  if(s){
+    s.lessons.forEach(l => { if(l.subject) subs.add(l.subject.trim()); });
+  }
+  const defaults = ["Mathematik", "Deutsch", "Englisch", "Biologie", "Chemie", "Physik", "Geschichte", "Erdkunde", "Sport", "Musik", "Kunst", "Informatik", "Französisch", "Spanisch", "Religion", "Ethik"];
+  defaults.forEach(d => subs.add(d));
+  return Array.from(subs).sort();
+}
+
+async function adminLogin(){
+ modal(`<h2>Admin-Anmeldung</h2><p class="muted">Mit Supabase-Zugangsdaten einloggen.</p><label>E-Mail</label><input id="adminEmail" type="email" value="admin@untas.de"><label>Passwort</label><input id="adminPass" type="password" onkeydown="if(event.key==='Enter')checkAdmin()"><div class="row" style="justify-content:flex-end;margin-top:20px"><button class="secondary" onclick="closeModal()">Abbrechen</button><button class="primary" onclick="checkAdmin()">Anmelden</button></div>`);
+ setTimeout(()=>document.getElementById("adminPass")?.focus(),30);
+}
+
+async function checkAdmin(){
+ try{
+  const email=document.getElementById("adminEmail").value.trim(),password=document.getElementById("adminPass").value;
+  const r=await fetch(SUPABASE_URL+"/auth/v1/token?grant_type=password",{method:"POST",headers:{"apikey":SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({email,password})});
+  const a=await r.json(); if(!r.ok||!a.access_token)return toast("Anmeldung fehlgeschlagen.");
+  const q=await fetch(SUPABASE_URL+"/rest/v1/rpc/is_untas_admin",{method:"POST",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+a.access_token,"Content-Type":"application/json"}});
+  const isAdmin=await q.json();
+  if(!q.ok||isAdmin!==true)return toast("Keine Admin-Berechtigung.");
+  session={type:"admin",accessToken:a.access_token,userId:a.user.id,email}; savePersistentState(); closeModal();await loadData();render();startRefresh();toast("Erfolgreich angemeldet.");
+ }catch(e){toast("Anmeldung fehlgeschlagen.")}
+}
+
+async function login(sid){
+ const username=document.getElementById("loginUser").value.trim(),password=document.getElementById("loginPass").value;
+ try{
+  const tr=await fetch(SUPABASE_URL+"/rest/v1/rpc/login_teacher",{method:"POST",headers:{"apikey":SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({p_school_id:sid,p_username:username,p_password:password})});
+  const trows=await tr.json();
+  if(tr.ok && trows && trows.length > 0){
+    session={type:"teacher",schoolId:sid,teacherId:trows[0].id,teacherName:trows[0].name}; savePersistentState(); await loadData();render();startRefresh();
+    return;
+  }
+
+  const r=await fetch(SUPABASE_URL+"/rest/v1/rpc/login_class",{method:"POST",headers:{"apikey":SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({p_school_id:sid,p_username:username,p_password:password})});
+  const rows=await r.json(); if(!r.ok||!rows?.length)return toast("Benutzername oder Passwort falsch.");
+  session={type:"class",schoolId:sid,classId:rows[0].id}; savePersistentState(); await loadData();render();startRefresh();
+ }catch(e){toast("Anmeldung fehlgeschlagen.")}
+}
+
+function logout(){session=null;currentPage=null;try{localStorage.removeItem(SESSION_STORAGE_KEY);localStorage.removeItem(PAGE_STORAGE_KEY)}catch(e){}clearInterval(window._refresh);render()}
+
+function startRefresh(){
+  clearInterval(window._refresh);
+  window._refresh=setInterval(async()=>{
+    try{
+      if(!session)return;
+      if(document.getElementById("modalBg").classList.contains("show"))return;
+      // Hintergrund-Sync: niemals die komplette App neu rendern, sonst verlieren Eingabefelder den Fokus/Inhalt.
+      await loadData();
+      if (currentPage === "attendance_reports" && session.type === "admin") renderAttendanceReports();
+      if (currentPage === "reported_problems" && session.type === "admin") { const pr=document.getElementById("problemReportsList"); if(pr) pr.innerHTML=problemReportsList(); }
+      // Im Klassenbuch nur die Liste aktualisieren; Eingabefelder und Anwesenheitswerte
+      // bleiben unangetastet, damit Texteingaben nicht verloren gehen.
+      if (currentPage === "classbook" && (session.type === "admin" || session.type === "teacher" || session.type === "director")) {
+        const list = document.getElementById("classbookEntriesList");
+        const classSelect = document.getElementById("cbClassSelect");
+        if (list) list.innerHTML = renderClassbookEntries(classSelect?.value || session.classId || "");
+        const attendanceList=document.getElementById("attendanceManagementList");
+        if(attendanceList) attendanceList.innerHTML=renderAttendanceManagement();
+      }
+      if (currentPage === "timetable" && session.type === "admin") refreshAdminTT();
+      if (currentPage === "timetable" && session.type === "teacher") refreshTeacherStudentTT();
+      if (currentPage === "teacher_lessons" && session.type === "teacher") refreshTeacherTT();
+    }catch(e){}
+  },15000);
+}
+
+function esc(s){
+  if (s === null || s === undefined) return "";
+  return String(s).replace(/[&<>"']/g, function(c) {
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c];
+  });
+}
+
+function parseLessonMeta(raw){
+  const prefix="__UNTAS_META__";
+  if(!String(raw).startsWith(prefix)) return {note:String(raw||""),color:"border-left:4px solid #3b82f6;background:rgba(37,99,235,0.15);color:#60a5fa;",isExam:false};
+  const nl=String(raw).indexOf("\n");
+  try{
+    const meta=JSON.parse(String(raw).slice(prefix.length,nl<0?undefined:nl));
+    return {note:nl<0?"":String(raw).slice(nl+1),color:meta.color||"border-left:4px solid #3b82f6;background:rgba(37,99,235,0.15);color:#60a5fa;",isExam:Boolean(meta.isExam)};
+  }catch(e){return {note:String(raw||""),color:"border-left:4px solid #3b82f6;background:rgba(37,99,235,0.15);color:#60a5fa;",isExam:false}}
+}
+function packLessonNote(note,color,isExam){return "__UNTAS_META__"+JSON.stringify({color:color||"border-left:4px solid #3b82f6;background:rgba(37,99,235,0.15);color:#60a5fa;",isExam:Boolean(isExam)})+"\n"+String(note||"")}
+
+function toast(t){let x=document.getElementById("toast");if(!x)return;x.textContent=t;x.style.display="block";clearTimeout(window._toast);window._toast=setTimeout(()=>x.style.display="none",3000)}
+function modal(h){document.getElementById("modal").innerHTML=h;document.getElementById("modalBg").classList.add("show")}
+function closeModal(){document.getElementById("modalBg").classList.remove("show")}
+document.getElementById("modalBg").onclick=e=>{if(e.target.id==="modalBg")closeModal()};
+
+
+async function loadNexoraUpdates(){
+ try{data.updates=await api("nexora_updates?select=*&order=created_at.desc");}
+ catch(e){console.warn("Nexora-Updates konnten nicht geladen werden. Prüfe die Tabelle nexora_updates.",e);if(!Array.isArray(data.updates))data.updates=[];}
+ const box=document.getElementById("adminUpdatesList");if(box)box.innerHTML=renderUpdateCards(true);
+ const signed=document.getElementById("updatesList");if(signed)signed.innerHTML=renderUpdateCards(false);
+}
+function renderUpdateCards(canDelete=false){
+ const rows=Array.isArray(data.updates)?data.updates:[];
+ if(!rows.length)return '<div class="notice">Noch keine Updates veröffentlicht.</div>';
+ return rows.map(u=>`<article class="update-card"><div class="row between wrap"><h3>${esc(u.title||"Update")}</h3>${canDelete?`<button class="danger" onclick="deleteNexoraUpdate('${u.id}')">Löschen</button>`:""}</div><div class="update-date">${u.created_at?new Date(u.created_at).toLocaleString("de-DE"):""}</div><div class="update-description">${esc(u.description||"")}</div></article>`).join("");
+}
+async function publishNexoraUpdate(){
+ if(session?.type!=="admin")return toast("Nur der Administrator kann Updates veröffentlichen.");
+ const title=(document.getElementById("updateTitle")?.value||"").trim();
+ const description=(document.getElementById("updateDescription")?.value||"").trim();
+ if(!title||!description)return toast("Bitte Titel und Beschreibung ausfüllen.");
+ try{await api("nexora_updates",{method:"POST",body:JSON.stringify({title,description,created_by:session.email||"Administrator"})});document.getElementById("updateTitle").value="";document.getElementById("updateDescription").value="";await loadNexoraUpdates();toast("Update wurde veröffentlicht.");}
+ catch(e){console.error(e);toast("Update konnte nicht gespeichert werden. Bitte die SQL-Tabelle und Supabase-Berechtigungen einrichten.");}
+}
+async function deleteNexoraUpdate(id){
+ if(session?.type!=="admin")return toast("Nur der Administrator kann Updates löschen.");
+ if(!confirm("Dieses Update wirklich löschen?"))return;
+ try{await api("nexora_updates?id=eq."+encodeURIComponent(id),{method:"DELETE"});await loadNexoraUpdates();toast("Update gelöscht.");}
+ catch(e){console.error(e);toast("Update konnte nicht gelöscht werden.");}
+}
+async function showLoginUpdates(){
+ try{data.updates=await api("nexora_updates?select=*&order=created_at.desc",{headers:{"Authorization":"Bearer "+SUPABASE_KEY}});}
+ catch(e){data.updates=[];}
+ modal(`<h2>Updates</h2><p class="muted">Aktuelle Neuigkeiten und Änderungen an Nexora.</p><div class="list" style="margin-top:18px;max-height:60vh;overflow:auto">${renderUpdateCards(false)}</div><div class="row" style="justify-content:flex-end;margin-top:18px"><button class="primary" onclick="closeModal()">Schließen</button></div>`);
+ if(window.lucide)lucide.createIcons();
+}
+function updatesPage(){return `<section id="page-updates" class="page"><h2>Update</h2><div class="muted">Aktuelle Neuigkeiten und Änderungen an Nexora.</div><div id="updatesList" class="list" style="margin-top:20px">${renderUpdateCards(false)}</div></section>`;}
+
+function render(){
+  try {
+    if(session && session.type==="class"){
+      const s=data.schools.find(x=>x.id===session.schoolId);
+      const c=s?.classes.find(x=>x.id===session.classId);
+      if(!s || !c) { session=null; savePersistentState(); renderLogin(); return; }
+    }
+    if(session && session.type==="teacher"){
+      const s=data.schools.find(x=>x.id===session.schoolId);
+      const t=data.teachers.find(x=>x.id===session.teacherId);
+      if(!s || !t) { session=null; savePersistentState(); renderLogin(); return; }
+    }
+    session?renderApp():renderLogin();
+    setTimeout(() => { if(window.lucide) lucide.createIcons(); }, 50);
+  } catch(e) {
+    console.error("Render error:", e);
+    session=null; renderLogin();
+  }
+}
+
+function renderLogin(){
+ document.getElementById("app").innerHTML=`<div class="login-wrap"><div class="login-card card">
+ <div class="logo" style="margin-bottom:24px;font-size:24px"><div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#2563eb,#4f46e5);display:flex;align-items:center;justify-content:center;color:#fff"><i data-lucide="calendar" style="width:20px;height:20px"></i></div>Nexora<span>.</span></div>
+ <div id="loginStep">${schoolStep()}</div>
+ </div><button class="login-update-link" onclick="showLoginUpdates()"><i data-lucide="megaphone"></i> Update</button></div>`;
+ if(window.lucide) lucide.createIcons();
+}
+
+function schoolStep(){
+ return `<h1>Schule auswählen</h1><p class="sub">Wähle deine Schule aus der Liste aus.</p>
+ <label>Schule suchen</label><input id="schoolSearch" oninput="filterSchools()" placeholder="Name oder Ort..." autofocus>
+ <div id="schoolResults" class="list" style="margin-top:16px;max-height:280px;overflow:auto">${schoolCards()}</div>
+ <div class="admin-link" onclick="adminLogin()">Admin-Anmeldung</div><div class="admin-link" onclick="directorLogin()" style="margin-top:10px">Schuldirektor-Anmeldung</div>`;
+}
+
+function schoolCards(){
+ if(!data.schools.length)return '<div class="notice">Keine Schulen verfügbar.</div>';
+ return data.schools.map(s=>`<div class="item school-card" style="cursor:pointer" onclick="chooseSchool('${s.id}')">
+ <div class="row between"><div><b style="color:#fff">${esc(s.name)}</b><div class="muted small">${esc(s.city||"Kein Ort")}</div></div><span style="color:#60a5fa">→</span></div>
+ </div>`).join("");
+}
+
+function filterSchools(){
+ let q=document.getElementById("schoolSearch").value.toLowerCase();
+ let a=data.schools.filter(s=>(s.name+" "+s.city).toLowerCase().includes(q));
+ document.getElementById("schoolResults").innerHTML=a.length?a.map(s=>`<div class="item school-card" style="cursor:pointer" onclick="chooseSchool('${s.id}')"><div class="row between"><div><b style="color:#fff">${esc(s.name)}</b><div class="muted small">${esc(s.city||"")}</div></div><span style="color:#60a5fa">→</span></div></div>`).join(""):'<div class="notice">Keine Schule gefunden.</div>';
+}
+
+async function directorLogin(){
+ modal(`<h2>Schuldirektor-Anmeldung</h2><p class="muted">Melde dich mit deinem Direktor-Namen und Passwort an.</p><label>Direktor-Name</label><input id="directorLoginName" autocomplete="username" placeholder="z. B. Max Mustermann"><label>Passwort</label><input id="directorLoginPass" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitDirectorLogin()"><div class="row" style="justify-content:flex-end;margin-top:20px"><button class="secondary" onclick="closeModal()">Abbrechen</button><button class="primary" onclick="submitDirectorLogin()">Anmelden</button></div>`);
+}
+async function submitDirectorLogin(){
+ const name=document.getElementById('directorLoginName')?.value.trim(),password=document.getElementById('directorLoginPass')?.value;
+ if(!name||!password)return toast('Name und Passwort eingeben.');
+ try{
+  const r=await fetch(SUPABASE_URL+'/functions/v1/school-director-auth',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Content-Type':'application/json'},body:JSON.stringify({action:'login',name,password})});
+  const j=await r.json();if(!r.ok||!j.access_token||!j.school_id)return toast(j.error||'Anmeldung fehlgeschlagen.');
+  session={type:'director',schoolId:j.school_id,schoolDirectorId:j.director_id,name:j.name,accessToken:j.access_token,refreshToken:j.refresh_token};savePersistentState();closeModal();await loadData();render();startRefresh();toast('Als Schuldirektor angemeldet.');
+ }catch(e){toast('Direktor-Anmeldung nicht verfügbar. Prüfe, ob die Supabase Edge Function bereitgestellt wurde.');}
+}
+
+function chooseSchool(id){
+ const s=data.schools.find(x=>x.id===id); if(!s)return;
+ document.getElementById("loginStep").innerHTML=`<div class="row" style="margin-bottom:16px"><button class="secondary" onclick="renderLogin()">← Zurück</button></div>
+ <div class="item" style="margin-bottom:16px;background:rgba(19,27,46,0.4)"><b style="color:#fff">${esc(s.name)}</b><div class="muted small">${esc(s.city||"")}</div></div>
+ <h1>Anmeldung</h1><p class="sub">Gib deine Zugangsdaten (Klasse oder Lehrer) ein.</p>
+ <label>Benutzername / Kürzel</label><input id="loginUser" placeholder="z.B. 10a oder MUE" autocomplete="username">
+ <label>Passwort</label><input id="loginPass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')login('${s.id}')">
+ <button class="primary" style="width:100%;margin-top:24px" onclick="login('${s.id}')">Anmelden</button>`;
+ if(window.lucide) lucide.createIcons();
+}
+
+function renderApp(){
+ let admin=session.type==="admin";
+ let director=session.type==="director";
+ let teacher=session.type==="teacher";
+ let s=admin?null:data.schools.find(x=>x.id===session.schoolId);
+ let c=session.type==="class"?s?.classes.find(x=>x.id===session.classId):null;
+ let tObj=teacher?data.teachers.find(x=>x.id===session.teacherId):null;
+ 
+ let clName=admin?"Administrator":(director?esc(s?.name)+" · Schuldirektor ("+esc(session.name||"")+")":(teacher?esc(s?.name)+" · Lehrer ("+esc(tObj?.name||"") + ")":esc(s?.name)+" · Klasse "+esc(c?.name)));
+
+ const icons={
+   dashboard:`<i data-lucide="layout-grid"></i>`,
+   timetable:`<i data-lucide="calendar"></i>`,
+   schools:`<i data-lucide="building-2"></i>`,
+   classes:`<i data-lucide="users"></i>`,
+   teachers:`<i data-lucide="user-check"></i>`,
+   homework:`<i data-lucide="book-open"></i>`,
+   messages:`<i data-lucide="message-square"></i>`,
+   calendar:`<i data-lucide="calendar-days"></i>`,
+   announcements:`<i data-lucide="megaphone"></i>`,
+   teacher_lessons:`<i data-lucide="edit-3"></i>`,
+   classbook:`<i data-lucide="book-marked"></i>`,
+   attendance_reports:`<i data-lucide="clipboard-list"></i>`,
+   report_problem:`<i data-lucide="flag"></i>`,
+   reported_problems:`<i data-lucide="alert-triangle"></i>`,
+   directors:`<i data-lucide="shield-check"></i>`,
+   director_dashboard:`<i data-lucide="building-2"></i>`,
+   director_classes:`<i data-lucide="users"></i>`,
+   director_timetable:`<i data-lucide="calendar"></i>`,
+   director_calendar:`<i data-lucide="calendar-days"></i>`,
+   director_teachers:`<i data-lucide="user-cog"></i>`,
+   director_report_problem:`<i data-lucide="flag"></i>`,
+   updates:`<i data-lucide="megaphone"></i>`,
+   updates_admin:`<i data-lucide="megaphone"></i>`
+ };
+
+ document.getElementById("app").innerHTML=`
+   <div class="topbar">
+     <div class="logo"><div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#2563eb,#4f46e5);display:flex;align-items:center;justify-content:center;color:#fff"><i data-lucide="calendar" style="width:16px;height:16px"></i></div>Nexora<span>.</span></div>
+     <div class="school-pill">${clName}</div>
+     <div class="top-actions"><button class="secondary" onclick="logout()">Abmelden</button></div>
+   </div>
+   <div class="layout">
+     <aside class="sidebar">${admin?adminNav(icons):(director?directorNav(icons):(teacher?teacherNav(icons):studentNav(icons)))}</aside>
+     <main class="content">${admin?adminPages():(director?directorPages(): (teacher?teacherPages():studentPages()))}</main>
+   </div>`;
+ 
+ const defaultPage=admin?"dashboard":(director?"director_dashboard":"timetable");
+ const allowedPages=admin?["dashboard","directors","timetable","schools","classes","teachers","homework","messages","calendar","announcements","attendance_reports","classbook","reported_problems","report_problem","updates_admin"]:(director?["director_dashboard","director_classes","director_timetable","director_calendar","director_teachers","director_report_problem","classbook","updates"]:(teacher?["timetable","teacher_lessons","classbook","homework","messages","announcements","report_problem","updates"]:["timetable","homework","messages","announcements","report_problem","updates"]));
+ nav(currentPage&&allowedPages.includes(currentPage)?currentPage:defaultPage);
+ if(window.lucide) lucide.createIcons();
+}
+
+function navs(arr,icons){return arr.map(([id,t])=>`<button class="navbtn" data-page="${id}" onclick="nav('${id}')">${icons[id]||""}<span>${t}</span></button>`).join("")}
+function adminNav(ic){return navs([["dashboard","Übersicht"],["directors","Schuldirektor"],["timetable","Stundenplan"],["schools","Schulen"],["classes","Klassen"],["classbook","Klassenbuch"],["attendance_reports","Fehlzeiten / Berichte"],["teachers","Lehrer"],["homework","Hausaufgaben"],["messages","Nachrichten"],["calendar","Schulveranstaltungen"],["announcements","Ankündigungen"],["reported_problems","Gemeldete Probleme"],["updates_admin","Updates"]],ic)}
+function teacherNav(ic){return navs([["timetable","Stundenplan"],["teacher_lessons","Hausaufgaben & Arbeiten"],["classbook","Klassenbuch"],["homework","Hausaufgaben"],["messages","Nachrichten"],["announcements","Ankündigungen"],["report_problem","Problem melden"],["updates","Update"]],ic)}
+function studentNav(ic){return navs([["timetable","Stundenplan"],["homework","Hausaufgaben"],["messages","Nachrichten"],["announcements","Ankündigungen"],["report_problem","Problem melden"],["updates","Update"]],ic)}
+
+function directorNav(ic){return navs([["director_dashboard","Meine Schule"],["director_classes","Klassen & Schüler"],["director_teachers","Lehrer konfigurieren"],["director_timetable","Stundenplan"],["classbook","Digitales Klassenbuch"],["director_calendar","Veranstaltungen"],["director_report_problem","Problem melden"],["updates","Update"]],ic)}
+function directorPages(){
+ const s=data.schools.find(x=>x.id===session.schoolId);
+ const classes=s?.classes||[]; const lessons=s?.lessons||[];
+ return `<section id="page-director_dashboard" class="page"><h2>Schuldirektor-Bereich</h2><div class="muted">Du verwaltest ausschließlich die dir zugewiesene Schule.</div><div class="statgrid"><div class="stat card"><span>Schule</span><b style="font-size:20px">${esc(s?.name||'Nicht verfügbar')}</b></div><div class="stat card"><span>Klassen</span><b>${classes.length}</b></div><div class="stat card"><span>Stunden</span><b>${lessons.length}</b></div></div><div class="card" style="padding:20px"><b>Schulverwaltung</b><p class="muted">Verwalte Klassen, Schülerlisten, Stundenplan und Schulveranstaltungen über die Menüpunkte links.</p></div></section>
+ <section id="page-director_classes" class="page"><div class="row between wrap"><div><h2>Klassen & Schüler</h2><div class="muted">Nur Klassen deiner Schule werden angezeigt.</div></div><button class="primary" onclick="directorClassModal()">+ Klasse erstellen</button></div><div class="card table-wrap" style="margin-top:20px"><table class="table"><tr><th>Klasse</th><th>Benutzername</th><th>Schüler</th><th>Aktionen</th></tr>${classes.map(c=>`<tr><td><b>${esc(c.name)}</b></td><td>${esc(c.username||'')}</td><td>${data.students.filter(st=>st.classId===c.id).length}</td><td><button class="secondary" onclick="manageStudentsModal('${s.id}','${c.id}')">Schüler verwalten</button> <button class="secondary" onclick="directorEditClass('${c.id}')">Bearbeiten</button> <button class="danger" onclick="directorDeleteClass('${c.id}')">Löschen</button></td></tr>`).join('')||'<tr><td colspan="4">Noch keine Klassen vorhanden.</td></tr>'}</table></div></section>
+ <section id="page-director_timetable" class="page"><h2>Stundenplan</h2><div class="muted">Stundenplan deiner Schule ansehen und bearbeiten.</div><div class="toolbar"><select id="directorClassSelect" onchange="refreshDirectorTT()">${classes.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select><button class="secondary" onclick="changeWeek(-1)">← Vorherige Woche</button><button class="secondary" onclick="changeWeek(0)">Aktuelle Woche</button><button class="secondary" onclick="changeWeek(1)">Nächste Woche →</button></div><div id="directorTT" style="margin-top:16px"></div><div class="muted">Klicke auf eine Stunde, um sie zu bearbeiten, sofern die Supabase-Berechtigungen dafür eingerichtet sind.</div></section>
+ <section id="page-director_calendar" class="page"><div class="row between wrap"><div><h2>Schulveranstaltungen</h2><div class="muted">Termine für deine Schule.</div></div><button class="primary" onclick="directorCalendarModal()">+ Veranstaltung</button></div><div class="list" style="margin-top:20px">${data.calendar.filter(e=>e.schoolId===session.schoolId).map(e=>`<div class="item"><div class="row between"><b>${esc(e.title)}</b><span class="muted">${esc(e.date)}</span></div><p>${esc(e.text||'')}</p><button class="danger" onclick="directorDeleteCalendar('${e.id}')">Löschen</button></div>`).join('')||'<div class="notice">Keine Veranstaltungen eingetragen.</div>'}</div></section>
+ <section id="page-director_teachers" class="page"><div class="row between wrap"><div><h2>Lehrer konfigurieren</h2><div class="muted">Du kannst nur Lehrkräfte deiner zugewiesenen Schule erstellen, bearbeiten und löschen.</div></div><button class="primary" onclick="directorTeacherModal()">+ Lehrer hinzufügen</button></div><div class="card table-wrap" style="margin-top:20px"><table class="table"><tr><th>Name</th><th>Kürzel</th><th>Fächer</th><th>Aktionen</th></tr>${data.teachers.filter(t=>t.schoolId===session.schoolId).map(t=>`<tr><td><b>${esc(t.name)}</b></td><td>${esc(t.username||'')}</td><td>${esc(t.subject||'-')}</td><td><button class="secondary" onclick="directorTeacherModal('${t.id}')">Bearbeiten</button> <button class="danger" onclick="deleteTeacher('${t.id}')">Löschen</button></td></tr>`).join('')||'<tr><td colspan="4">Für deine Schule sind noch keine Lehrer angelegt.</td></tr>'}</table></div></section>
+ <section id="page-director_report_problem" class="page"><h2>Problem melden</h2><div class="muted">Melde ein technisches Problem oder einen Fehler für deine Schule.</div><div class="card" style="padding:22px;margin-top:20px;max-width:760px"><label>Betreff</label><input id="problemTitle" maxlength="160" placeholder="z. B. Stundenplan wird falsch angezeigt"><label style="margin-top:12px">Beschreibung</label><textarea id="problemDescription" rows="5" maxlength="5000" placeholder="Was ist passiert? Was hast du erwartet?"></textarea><button class="primary" style="margin-top:14px" onclick="submitProblemReport()">Problem absenden</button><div class="muted" style="margin-top:10px;font-size:12px">Die Meldung wird deiner Schule zugeordnet. Bitte keine Passwörter eintragen.</div></div></section>
+ <section id="page-classbook" class="page">
+  <h2>Digitales Klassenbuch</h2><div class="muted">Nur Klassen, Schüler, Anwesenheit, Einträge und Noten deiner Schule (${esc(s?.name||"")}).</div>
+  <div class="toolbar"><label style="margin:0">Klasse:</label><select id="cbClassSelect" onchange="loadClassbookData()" style="max-width:260px">${classes.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("")}</select><label style="margin:0">Datum:</label><input type="date" id="cbDate" value="${new Date().toISOString().slice(0,10)}" onchange="loadClassbookData()" style="max-width:180px"></div>
+  <div class="card" style="margin-top:20px;padding:24px"><h3>Anwesenheitsliste</h3><div id="attendanceContainer"></div></div>
+  <div class="card" style="margin-top:20px;padding:24px"><h3>Gespeicherte Fehlzeiten & Verspätungen</h3><div class="muted">Einträge deiner Schule verwalten und alte Datensätze entfernen.</div><div id="attendanceManagementList" style="margin-top:14px"></div></div>
+  <div class="card" style="margin-top:20px;padding:24px"><h3>Eintrag ins digitale Klassenbuch</h3><div class="muted">Dokumentiere Vorfälle oder Beobachtungen nur für Schüler deiner Schule.</div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0"><div><label>Schüler</label><select id="entryStudent"><option value="">Schüler auswählen</option>${classes.flatMap(c=>data.students.filter(st=>st.classId===c.id&&st.schoolId===session.schoolId).map(st=>`<option value="${esc(st.id)}">${esc(c.name)} · ${esc(st.name)}</option>`)).join("")}</select></div><div><label>Art des Eintrags</label><select id="entryType"><option value="incident">Vorfall / Regelverstoß</option><option value="positive">Positive Beobachtung</option><option value="note">Sonstige Notiz</option></select></div><div style="grid-column:1/-1"><label>Titel</label><input id="entryTitle" maxlength="180" placeholder="Titel des Eintrags"></div><div style="grid-column:1/-1"><label>Beschreibung</label><textarea id="entryDescription" rows="3" maxlength="5000" placeholder="Sachliche Beschreibung …"></textarea></div></div><button class="primary" onclick="saveClassbookEntry()">Eintrag speichern</button><div id="classbookEntriesList" style="margin-top:18px">${renderClassbookEntries(classes[0]?.id||"")}</div></div>
+  <div class="card" style="margin-top:20px;padding:24px"><h3>Noten eintragen</h3><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:12px 0"><div><label>Schülername</label><input id="gradeStudent" placeholder="Schülername"></div><div><label>Fach</label><input id="gradeSubject" placeholder="z. B. Mathematik"></div><div><label>Note / Punkte</label><input id="gradeValue" placeholder="z. B. 2+"></div></div><button class="primary" onclick="saveGrade()">Note speichern</button><div class="table-wrap" style="margin-top:16px"><table class="table"><tr><th>Schüler</th><th>Fach</th><th>Typ</th><th>Note</th><th>Aktion</th></tr><tbody id="gradesTableBody">${renderGradesTableRows(classes[0]?.id||"")}</tbody></table></div></div>
+ </section>${updatesPage()}`;
+}
+function refreshDirectorTT(){const s=data.schools.find(x=>x.id===session?.schoolId);const c=document.getElementById('directorClassSelect');const out=document.getElementById('directorTT');if(!s||!c||!out)return;out.innerHTML=s.classes.length?timetable(s,c.value,true,getWeekKey(currentOffsetWeeks)):'<div class="notice">Keine Klasse vorhanden.</div>';if(window.lucide)lucide.createIcons();}
+function directorClassModal(){const s=data.schools.find(x=>x.id===session?.schoolId);if(!s)return;modal(`<h2>Klasse erstellen</h2><label>Klassenname</label><input id="directorClassName" placeholder="z. B. 8a"><label>Benutzername</label><input id="directorClassUser" placeholder="z. B. 8a"><label>Passwort</label><input id="directorClassPass" type="password"><div class="row" style="justify-content:flex-end;margin-top:20px"><button class="secondary" onclick="closeModal()">Abbrechen</button><button class="primary" onclick="directorSaveClass()">Erstellen</button></div>`)}
+function directorEditClass(classId){const s=data.schools.find(x=>x.id===session?.schoolId);const c=s?.classes.find(x=>x.id===classId);if(!c)return;modal(`<h2>Klasse bearbeiten</h2><label>Klassenname</label><input id="directorEditClassName" value="${esc(c.name)}"><label>Benutzername</label><input id="directorEditClassUser" value="${esc(c.username||'')}"><label>Neues Passwort (optional)</label><input id="directorEditClassPass" type="password" placeholder="Leer lassen, um es beizubehalten"><div class="row" style="justify-content:flex-end;margin-top:20px"><button class="secondary" onclick="closeModal()">Abbrechen</button><button class="primary" onclick="directorUpdateClass('${classId}')">Speichern</button></div>`)}
+async function directorUpdateClass(classId){const s=data.schools.find(x=>x.id===session?.schoolId);const name=document.getElementById('directorEditClassName')?.value.trim(),username=document.getElementById('directorEditClassUser')?.value.trim(),password=document.getElementById('directorEditClassPass')?.value;if(!s||!name||!username)return toast('Klassenname und Benutzername sind erforderlich.');try{const body={name,username};if(password)body.password_hash=password;await api('classes?id=eq.'+encodeURIComponent(classId)+'&school_id=eq.'+encodeURIComponent(s.id),{method:'PATCH',body:JSON.stringify(body)});await loadData();closeModal();render();toast('Klasse aktualisiert.')}catch(e){toast('Aktualisieren fehlgeschlagen: '+String(e.message||e).slice(0,100))}}
+async function directorDeleteClass(classId){const s=data.schools.find(x=>x.id===session?.schoolId);if(!s||!confirm('Klasse wirklich löschen? Zugehörige Daten können je nach Datenbankbeziehungen ebenfalls betroffen sein.'))return;try{await api('classes?id=eq.'+encodeURIComponent(classId)+'&school_id=eq.'+encodeURIComponent(s.id),{method:'DELETE'});await loadData();render();toast('Klasse gelöscht.')}catch(e){toast('Löschen fehlgeschlagen: '+String(e.message||e).slice(0,100))}}
+async function directorSaveClass(){const s=data.schools.find(x=>x.id===session?.schoolId);const name=document.getElementById('directorClassName')?.value.trim(),username=document.getElementById('directorClassUser')?.value.trim(),password=document.getElementById('directorClassPass')?.value;if(!s||!name||!username||!password)return toast('Alle Felder ausfüllen.');try{await api('classes',{method:'POST',body:JSON.stringify({school_id:s.id,name,username,password_hash:password})});await loadData();closeModal();render();toast('Klasse erstellt.')}catch(e){toast('Klasse konnte nicht erstellt werden: '+String(e.message||e).slice(0,100))}}
+function directorCalendarModal(){const s=data.schools.find(x=>x.id===session?.schoolId);if(!s)return;modal(`<h2>Veranstaltung erstellen</h2><label>Titel</label><input id="directorEventTitle" placeholder="z. B. Wandertag"><label>Datum</label><input id="directorEventDate" type="date"><label>Beschreibung</label><textarea id="directorEventText"></textarea><div class="row" style="justify-content:flex-end;margin-top:20px"><button class="secondary" onclick="closeModal()">Abbrechen</button><button class="primary" onclick="directorSaveCalendar()">Speichern</button></div>`)}
+async function directorSaveCalendar(){const title=document.getElementById('directorEventTitle')?.value.trim(),date=document.getElementById('directorEventDate')?.value,textValue=document.getElementById('directorEventText')?.value.trim()||'';if(!title||!date)return toast('Titel und Datum eingeben.');try{await api('calendar',{method:'POST',body:JSON.stringify({school_id:session.schoolId,title,event_date:date,text:textValue})});await loadData();closeModal();render();toast('Veranstaltung gespeichert.')}catch(e){toast('Speichern fehlgeschlagen: '+String(e.message||e).slice(0,100))}}
+async function directorDeleteCalendar(id){if(!confirm('Veranstaltung löschen?'))return;try{await api('calendar?id=eq.'+encodeURIComponent(id)+'&school_id=eq.'+encodeURIComponent(session.schoolId),{method:'DELETE'});await loadData();render();toast('Veranstaltung gelöscht.')}catch(e){toast('Löschen fehlgeschlagen.')}}
+function directorModal(){if(!data.schools.length)return toast('Lege zuerst eine Schule an.');modal(`<h2>Schuldirektor erstellen</h2><label>Schule</label><select id="directorSchool">${data.schools.map(x=>`<option value="${x.id}">${esc(x.name)}${x.city?' · '+esc(x.city):''}</option>`).join('')}</select><label>Name / Anmeldename</label><input id="directorName" placeholder="z. B. Max Mustermann"><label>Passwort</label><input id="directorPassword" type="password" minlength="8" placeholder="Mindestens 8 Zeichen"><div class="row" style="justify-content:flex-end;margin-top:20px"><button class="secondary" onclick="closeModal()">Abbrechen</button><button class="primary" onclick="createDirector()">Konto erstellen</button></div>`)}
+async function createDirector(){const school_id=document.getElementById('directorSchool')?.value,name=document.getElementById('directorName')?.value.trim(),password=document.getElementById('directorPassword')?.value;if(!school_id||!name||!password)return toast('Alle Felder ausfüllen.');if(password.length<8)return toast('Passwort muss mindestens 8 Zeichen haben.');try{const r=await fetch(SUPABASE_URL+'/functions/v1/school-director-auth',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+(session?.accessToken||''),'Content-Type':'application/json'},body:JSON.stringify({action:'create',school_id,name,password})});const j=await r.json();if(!r.ok)return toast(j.error||'Direktor konnte nicht erstellt werden.');closeModal();await loadDirectorRows();toast('Schuldirektor-Konto erstellt.')}catch(e){toast('Edge Function fehlt oder ist nicht erreichbar. Bitte SQL und Function in Supabase einrichten.')}}
+async function loadDirectorRows(){const el=document.getElementById('directorRows');if(!el)return;try{const rows=await api('school_directors?select=id,display_name,school_id,created_at&order=created_at.desc');el.innerHTML=rows.map(d=>`<tr><td>${esc(d.display_name)}</td><td>${esc(data.schools.find(s=>s.id===d.school_id)?.name||'Schule gelöscht')}</td><td>${esc((d.created_at||'').slice(0,10))}</td><td><button class="danger" onclick="deleteDirector('${d.id}')">Zugang löschen</button></td></tr>`).join('')||'<tr><td colspan="4">Noch keine Direktor-Konten.</td></tr>'}catch(e){el.innerHTML='<tr><td colspan="4">Direktor-Liste nicht erreichbar. SQL/RLS einrichten.</td></tr>'}}
+async function deleteDirector(id){if(!confirm('Direktor-Zugang wirklich löschen?'))return;try{const r=await fetch(SUPABASE_URL+'/functions/v1/school-director-auth',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+session.accessToken,'Content-Type':'application/json'},body:JSON.stringify({action:'delete',director_id:id})});const j=await r.json();if(!r.ok)return toast(j.error||'Löschen fehlgeschlagen.');await loadDirectorRows();toast('Direktor-Zugang gelöscht.')}catch(e){toast('Löschen fehlgeschlagen.')}}
+
+function adminPages(){
+let weekLabel = getWeekDisplayLabel(currentOffsetWeeks);
+return `
+<section id="page-dashboard" class="page">
+  <h2>Übersicht</h2><div class="muted">Zentrale Steuerung für alle Schulen.</div>
+  <div class="statgrid">
+    <div class="stat card"><span>Schulen</span><b>${data.schools.length}</b></div>
+    <div class="stat card"><span>Klassen</span><b>${data.schools.reduce((a,s)=>a+s.classes.length,0)}</b></div>
+    <div class="stat card"><span>Lehrer</span><b>${data.teachers.length}</b></div>
+    <div class="stat card"><span>Stunden</span><b>${data.schools.reduce((a,s)=>a+s.lessons.length,0)}</b></div>
+  </div>
+  <div class="card" style="padding:24px;margin-top:24px"><b style="color:#fff">Bereit</b><p class="muted" style="margin:6px 0 0">Alle Funktionen inklusive Klassen- und Schülerverwaltung sind aktiv.</p></div>
+</section>
+<section id="page-directors" class="page">
+  <div class="row between wrap"><div><h2>Schuldirektor</h2><div class="muted">Direktor-Zugang für eine ausgewählte Schule erstellen und verwalten.</div></div><button class="primary" onclick="directorModal()">+ Direktor erstellen</button></div>
+  <div class="notice" style="margin-top:18px">Direktor-Konten werden über die Supabase Edge Function <code>school-director-auth</code> erstellt. SQL und Function-Datei müssen zuerst in Supabase eingerichtet werden.</div>
+  <div class="card table-wrap" style="margin-top:20px"><table class="table"><tr><th>Name</th><th>Schule</th><th>Erstellt</th><th>Aktion</th></tr><tbody id="directorRows"><tr><td colspan="4">Lade Direktor-Konten …</td></tr></tbody></table></div>
+</section>
+<section id="page-timetable" class="page">
+  <div class="row between wrap"><div><h2>Stundenplan verwalten</h2><div class="muted">Klicke auf eine Stunde zum Bearbeiten oder Hinzufügen.</div></div>
+  <div class="row"><select id="adminSchool" onchange="refreshAdminTT()"></select><select id="adminClass" onchange="refreshAdminTT()"></select></div></div>
+  <div class="toolbar">
+    <button class="secondary" onclick="changeWeek(-1)">← Vorherige Woche</button>
+    <button class="secondary" onclick="changeWeek(0)">Aktuelle Woche</button>
+    <button class="secondary" onclick="changeWeek(1)">Nächste Woche →</button>
+    <span style="font-weight:600;margin-left:8px;color:#60a5fa">${weekLabel}</span>
+  </div>
+  <div id="adminTT" style="margin-top:16px"></div>
+</section>
+<section id="page-schools" class="page">
+  <div class="row between"><div><h2>Schulen</h2><div class="muted">Schulen hinzufügen und bearbeiten.</div></div><button class="primary" onclick="schoolModal()">+ Schule</button></div>
+  <div class="card table-wrap" style="margin-top:24px"><table class="table"><tr><th>Schule</th><th>Ort</th><th>Klassen</th><th>Aktion</th></tr>${data.schools.map(s=>`<tr><td><b style="color:#fff">${esc(s.name)}</b></td><td>${esc(s.city)}</td><td>${s.classes.length}</td><td><button class="secondary" onclick="schoolModal('${s.id}')">Bearbeiten</button> <button class="danger" onclick="deleteSchool('${s.id}')">Löschen</button></td></tr>`).join("")}</table></div>
+</section>
+<section id="page-classes" class="page">
+  <div class="row between"><div><h2>Klassen</h2><div class="muted">Klassen und Schüler zentral verwalten.</div></div><button class="primary" onclick="classModal()">+ Klasse</button></div>
+  <div class="card table-wrap" style="margin-top:24px"><table class="table"><tr><th>Schule</th><th>Klasse</th><th>Benutzername</th><th>Schüler</th><th>Aktion</th></tr>${data.schools.flatMap(s=>s.classes.map(c=>{
+    const clStudents = data.students.filter(st=>st.classId===c.id);
+    return `<tr><td>${esc(s.name)}</td><td><b style="color:#fff">${esc(c.name)}</b></td><td>${esc(c.username)}</td><td>${clStudents.length} Schüler</td><td><button class="secondary" onclick="manageStudentsModal('${s.id}','${c.id}')">Schüler verwalten</button> <button class="secondary" onclick="classModal('${s.id}','${c.id}')">Bearbeiten</button> <button class="danger" onclick="deleteClass('${s.id}','${c.id}')">Löschen</button></td></tr>`;
+  })).join("")||'<tr><td colspan="5">Keine Klassen vorhanden.</td></tr>'}</table></div>
+</section>
+<section id="page-attendance_reports" class="page">
+  <h2>Fehlzeiten & Krankheitsberichte</h2><div class="muted">Übersicht aller gemeldeten Fehlzeiten, Krankmeldungen und Verspätungen.</div>
+  <div class="toolbar">
+    <select id="reportClassFilter" onchange="renderAttendanceReports()">
+      <option value="">Alle Klassen</option>
+      ${data.schools.flatMap(s=>s.classes.map(c=>`<option value="${c.id}">${esc(s.name)} – ${esc(c.name)}</option>`)).join("")}
+    </select>
+  </div>
+  <div class="card table-wrap" style="margin-top:24px">
+    <table class="table">
+      <tr><th>Datum / Stunde</th><th>Schüler</th><th>Klasse</th><th>Status</th><th>Aktionen</th></tr>
+      <tbody id="attendanceReportTableBody">
+        ${renderAttendanceReportRows()}
+      </tbody>
+    </table>
+  </div>
+</section>
+<section id="page-teachers" class="page">
+  <div class="row between"><div><h2>Lehrer</h2><div class="muted">Lehrer-Zugänge und deren Fächer verwalten.</div></div><button class="primary" onclick="teacherModal()">+ Lehrer</button></div>
+  <div class="card table-wrap" style="margin-top:24px"><table class="table"><tr><th>Schule</th><th>Name</th><th>Kürzel</th><th>Fächer</th><th>Aktion</th></tr>${data.teachers.map(t=>{const s=data.schools.find(x=>x.id===t.schoolId);return `<tr><td>${esc(s?.name||"")}</td><td><b style="color:#fff">${esc(t.name)}</b></td><td>${esc(t.username)}</td><td>${esc(t.subject||"-")}</td><td><button class="secondary" onclick="teacherModal('${t.id}')">Bearbeiten</button> <button class="danger" onclick="deleteTeacher('${t.id}')">Löschen</button></td></tr>`}).join("")||'<tr><td colspan="5">Keine Lehrer vorhanden.</td></tr>'}</table></div>
+</section>
+<section id="page-homework" class="page">
+  <div class="row between"><div><h2>Hausaufgaben</h2><div class="muted">Hausaufgaben für Klassen aufgeben.</div></div><button class="primary" onclick="homeworkModal()">+ Hausaufgabe</button></div>
+  <div class="list" style="margin-top:24px">${homeworkList(true)}</div>
+</section>
+<section id="page-classbook" class="page">
+  <div class="row between wrap"><div><h2>Digitales Klassenbuch</h2><div class="muted">Administrator · Anwesenheit und Noten für alle Klassen verwalten.</div></div></div>
+  <div class="toolbar"><label style="margin:0">Klasse:</label><select id="cbClassSelect" onchange="loadClassbookData()" style="max-width:260px">${data.schools.flatMap(sc=>sc.classes.map(c=>`<option value="${c.id}">${esc(sc.name)} · ${esc(c.name)}</option>`)).join("")}</select><label style="margin:0">Datum:</label><input type="date" id="cbDate" value="${new Date().toISOString().slice(0,10)}" onchange="loadClassbookData()" style="max-width:180px"></div>
+  <div class="card" style="margin-top:20px;padding:24px"><h3 style="font-size:16px;margin-bottom:12px;color:#fff">Anwesenheitsliste</h3><div id="attendanceContainer"></div></div>
+  <div class="card" style="margin-top:20px;padding:24px"><h3 style="font-size:16px;margin-bottom:8px;color:#fff">Eintrag ins digitale Klassenbuch</h3><div class="muted" style="margin-bottom:14px">Vorfälle und Beobachtungen dauerhaft dokumentieren. Nur der Administrator löscht Einträge.</div><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:12px"><div><label>Schüler</label><select id="entryStudent"><option value="">Schüler auswählen</option>${data.schools.flatMap(sc=>sc.classes.flatMap(c=>data.students.filter(st=>st.classId===c.id).map(st=>`<option value="${esc(st.id)}">${esc(sc.name)} · ${esc(c.name)} · ${esc(st.name)}</option>`))).join("")}</select></div><div><label>Art des Eintrags</label><select id="entryType"><option value="incident">Vorfall / Regelverstoß</option><option value="positive">Positive Beobachtung</option><option value="note">Sonstige Notiz</option></select></div><div style="grid-column:1/-1"><label>Titel</label><input id="entryTitle" placeholder="z. B. Störung des Unterrichts"></div><div style="grid-column:1/-1"><label>Beschreibung</label><textarea id="entryDescription" rows="3" placeholder="Sachlich beschreiben, was passiert ist …"></textarea></div></div><button class="primary" onclick="saveClassbookEntry()">Eintrag dauerhaft in Supabase speichern</button><div id="classbookEntriesList" style="margin-top:18px">${renderClassbookEntries(data.schools.flatMap(sc=>sc.classes)[0]?.id)}</div></div>
+  <div class="card" style="margin-top:20px;padding:24px"><h3 style="font-size:16px;margin-bottom:12px;color:#fff">Noten eintragen</h3><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px"><div><label>Schülername</label><input id="gradeStudent" placeholder="z. B. Max Mustermann"></div><div><label>Fach</label><input id="gradeSubject" placeholder="z. B. Mathematik"></div><div><label>Note / Punkte</label><input id="gradeValue" placeholder="z. B. 2+ oder 12"></div></div><button class="primary" onclick="saveGrade()">Note speichern</button></div>
+  <div class="card" style="margin-top:20px;padding:24px"><h3 style="font-size:16px;margin-bottom:12px;color:#fff">Bereits eingetragene Noten</h3><div class="table-wrap"><table class="table"><tr><th>Schüler</th><th>Fach</th><th>Typ</th><th>Note</th><th>Aktion</th></tr><tbody id="gradesTableBody">${renderGradesTableRows(data.schools.flatMap(sc=>sc.classes)[0]?.id)}</tbody></table></div></div>
+</section>
+<section id="page-messages" class="page">
+  <div class="row between"><div><h2>Nachrichten</h2><div class="muted">Mitteilungen an die Schulgemeinschaft.</div></div><button class="primary" onclick="messageModal()">+ Nachricht</button></div>
+  <div class="list" style="margin-top:24px">${messageList(true)}</div>
+</section>
+<section id="page-calendar" class="page">
+  <div class="row between"><div><h2>Schulveranstaltungen</h2><div class="muted">Ausflüge, Projekttage, Sportveranstaltungen und andere Termine eintragen. Sie erscheinen im Stundenplan der ausgewählten Schule.</div></div><button class="primary" onclick="calendarModal()">+ Schulveranstaltung eintragen</button></div>
+  <div class="list" style="margin-top:24px">${calendarList()}</div>
+</section>
+<section id="page-reported_problems" class="page">
+  <div class="row between wrap"><div><h2>Gemeldete Probleme</h2><div class="muted">Meldungen von Schülern, Lehrkräften und Administratoren.</div></div><button class="secondary" onclick="loadProblemReports()">Aktualisieren</button></div>
+  <div id="problemReportsList" class="list" style="margin-top:24px">${problemReportsList()}</div>
+</section>
+<section id="page-report_problem" class="page">
+  <h2>Problem melden</h2><div class="muted">Melde einen Fehler oder ein Problem mit Nexora.</div>
+  <div class="card" style="padding:22px;margin-top:20px;max-width:760px"><label>Betreff</label><input id="problemTitle" maxlength="160" placeholder="z. B. Stundenplan wird falsch angezeigt"><label style="margin-top:12px">Beschreibung</label><textarea id="problemDescription" rows="5" maxlength="5000" placeholder="Was ist passiert? Was hast du erwartet?"></textarea><button class="primary" style="margin-top:14px" onclick="submitProblemReport()">Problem absenden</button><div class="muted" style="margin-top:10px;font-size:12px">Bitte keine Passwörter oder unnötigen persönlichen Daten eintragen.</div></div>
+</section>
+${updatesPage()}
+<section id="page-updates_admin" class="page">
+ <h2>Updates verwalten</h2><div class="muted">Diese Updates werden auf der Anmeldeseite und für alle angemeldeten Nutzer angezeigt.</div>
+ <div class="card" style="padding:22px;margin-top:18px;max-width:760px"><label>Titel</label><input id="updateTitle" maxlength="180" placeholder="z. B. Neue Funktionen in Nexora"><label style="margin-top:12px">Beschreibung</label><textarea id="updateDescription" rows="5" maxlength="8000" placeholder="Beschreibe die Neuerung oder wichtige Information …"></textarea><button class="primary" style="margin-top:14px" onclick="publishNexoraUpdate()">Update veröffentlichen</button><div class="muted" style="font-size:12px;margin-top:8px">Nur der angemeldete Administrator kann Updates veröffentlichen und löschen.</div></div>
+ <div id="adminUpdatesList" class="list" style="margin-top:20px">${renderUpdateCards(true)}</div>
+</section>
+<section id="page-announcements" class="page">
+  <div class="row between"><div><h2>Ankündigungen</h2><div class="muted">Schulweite Infos eintragen und verwalten.</div></div><button class="primary" onclick="announcementModal()">+ Ankündigung</button></div>
+  <div class="list" style="margin-top:24px">${adminAnnouncementsList()}</div>
+</section>`;
+}
+
+function teacherPages(){
+  let s=data.schools.find(x=>x.id===session.schoolId);
+  let weekKey = getWeekKey(currentOffsetWeeks);
+  let weekLabel = getWeekDisplayLabel(currentOffsetWeeks);
+
+  return `
+<section id="page-timetable" class="page">
+  <div class="row between wrap"><div><h2>Stundenplan</h2><div class="muted">${esc(s?.name)} · Stundenplan der ausgewählten Klasse</div></div></div>
+  <div class="toolbar">
+    <button class="secondary" onclick="changeWeek(-1)">← Vorherige Woche</button>
+    <button class="secondary" onclick="changeWeek(0)">Aktuelle Woche</button>
+    <button class="secondary" onclick="changeWeek(1)">Nächste Woche →</button>
+    <span style="font-weight:600;margin-left:8px;color:#60a5fa">${weekLabel}</span>
+  </div>
+  <label>Klasse auswählen</label>
+  <select id="teacherStudentClassSelect" onchange="refreshTeacherStudentTT()" style="max-width:300px;margin-bottom:20px">
+    ${(s?.classes||[]).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("")}
+  </select>
+  <div id="teacherStudentTimetableContainer" style="margin-top:16px">
+    ${s?.classes?.length ? timetable(s,s.classes[0].id,true,weekKey) : '<div class="notice">Keine Klassen vorhanden.</div>'}
+  </div>
+</section>
+<section id="page-teacher_lessons" class="page">
+  <div class="row between wrap">
+    <div>
+      <h2>Hausaufgaben & Klassenarbeiten verwalten</h2>
+      <div class="muted">${esc(s?.name)} · Wähle deine Stunde im Stundenplan, um Aufgaben für deine Fächer einzutragen.</div>
+    </div>
+  </div>
+  <div class="toolbar">
+    <button class="secondary" onclick="changeWeek(-1)">← Vorherige Woche</button>
+    <button class="secondary" onclick="changeWeek(0)">Aktuelle Woche</button>
+    <button class="secondary" onclick="changeWeek(1)">Nächste Woche →</button>
+    <span style="font-weight:600;margin-left:8px;color:#60a5fa">${weekLabel}</span>
+  </div>
+  <label>Klasse auswählen</label>
+  <select id="teacherClassSelect" onchange="refreshTeacherTT()" style="max-width:300px;margin-bottom:20px">
+    ${(s?.classes||[]).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("")}
+  </select>
+  <div id="teacherTimetableContainer" style="margin-top:16px">
+    ${s?.classes?.length ? timetable(s, s.classes[0].id, true, weekKey) : '<div class="notice">Keine Klassen vorhanden.</div>'}
+  </div>
+</section>
+<section id="page-classbook" class="page">
+  <div class="row between wrap">
+    <div>
+      <h2>Digitales Klassenbuch</h2>
+      <div class="muted">${esc(s?.name)} · Anwesenheit dokumentieren und Noten verwalten.</div>
+    </div>
+  </div>
+  <div class="toolbar">
+    <label style="margin:0">Klasse:</label>
+    <select id="cbClassSelect" onchange="loadClassbookData()" style="max-width:200px">
+      ${(s?.classes||[]).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("")}
+    </select>
+    <label style="margin:0">Datum:</label>
+    <input type="date" id="cbDate" value="${new Date().toISOString().slice(0,10)}" onchange="loadClassbookData()" style="max-width:180px">
+  </div>
+  
+  <div class="card" style="margin-top:20px; padding:24px;">
+    <h3 style="font-size:16px; margin-bottom:12px; color:#fff">Anwesenheitsliste für die Klasse</h3>
+    <div id="attendanceContainer">
+      <!-- Wird dynamisch gefüllt -->
+    </div>
+  </div>
+  <div class="card" style="margin-top:20px;padding:24px;">
+    <h3 style="font-size:16px;margin-bottom:8px;color:#fff">Gespeicherte Fehlzeiten & Verspätungen</h3>
+    <div class="muted">Einträge deiner Schule verwalten und alte Datensätze entfernen.</div>
+    <div id="attendanceManagementList" style="margin-top:14px"></div>
+  </div>
+
+  <div class="card" style="margin-top:20px;padding:24px;">
+    <h3 style="font-size:16px;margin-bottom:8px;color:#fff">Eintrag ins digitale Klassenbuch</h3>
+    <div class="muted" style="margin-bottom:14px">Dokumentiere Vorfälle, Regelverstöße oder wichtige Beobachtungen. Einträge bleiben gespeichert, bis Administrator oder Schuldirektor sie bearbeiten oder löschen.</div>
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:12px">
+      <div><label>Schüler</label><select id="entryStudent"><option value="">Schüler auswählen</option>${(s?.classes||[]).flatMap(c=>data.students.filter(st=>st.classId===c.id && st.schoolId===session.schoolId).map(st=>`<option value="${esc(st.id)}">${esc(c.name)} · ${esc(st.name)}</option>`)).join("")}</select></div>
+      <div><label>Art des Eintrags</label><select id="entryType"><option value="incident">Vorfall / Regelverstoß</option><option value="positive">Positive Beobachtung</option><option value="note">Sonstige Notiz</option></select></div>
+      <div style="grid-column:1/-1"><label>Titel</label><input id="entryTitle" placeholder="z. B. Störung des Unterrichts"></div>
+      <div style="grid-column:1/-1"><label>Beschreibung</label><textarea id="entryDescription" rows="3" placeholder="Sachlich beschreiben, was passiert ist …"></textarea></div>
+    </div>
+    <button class="primary" onclick="saveClassbookEntry()">Eintrag dauerhaft in Supabase speichern</button>
+    <div id="classbookEntriesList" style="margin-top:18px">${renderClassbookEntries(s?.classes?.[0]?.id)}</div>
+  </div>
+
+  <div class="card" style="margin-top:20px; padding:24px;">
+    <h3 style="font-size:16px; margin-bottom:12px; color:#fff">Noten eintragen</h3>
+    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin-bottom:12px">
+      <div><label>Schülername</label><input id="gradeStudent" placeholder="z.B. Max Mustermann"></div>
+      <div><label>Fach</label><input id="gradeSubject" placeholder="z.B. Mathematik"></div>
+      <div><label>Note / Punkte</label><input id="gradeValue" placeholder="z.B. 2+ oder 12"></div>
+    </div>
+    <button class="primary" onclick="saveGrade()">Note speichern</button>
+  </div>
+
+  <div class="card" style="margin-top:20px; padding:24px;">
+    <h3 style="font-size:16px; margin-bottom:12px; color:#fff">Bereits eingetragene Noten</h3>
+    <div class="table-wrap">
+      <table class="table">
+        <tr><th>Schüler</th><th>Fach</th><th>Typ</th><th>Note</th><th>Aktion</th></tr>
+        <tbody id="gradesTableBody">
+          ${renderGradesTableRows(s?.classes[0]?.id)}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+<section id="page-homework" class="page">
+  <h2>Hausaufgaben</h2><div class="muted">Übersicht aller Hausaufgaben.</div>
+  <div class="list" style="margin-top:24px">${homeworkList(false)}</div>
+</section>
+<section id="page-messages" class="page">
+  <h2>Nachrichten</h2><div class="muted">Wichtige Mitteilungen.</div>
+  <div class="list" style="margin-top:24px">${messageList(false)}</div>
+</section>
+<section id="page-report_problem" class="page">
+  <h2>Problem melden</h2><div class="muted">Melde einen Fehler oder ein Problem mit Nexora. Beschreibe möglichst genau, was passiert ist.</div>
+  <div class="card" style="padding:22px;margin-top:20px;max-width:760px">
+    <label>Betreff</label><input id="problemTitle" maxlength="160" placeholder="z. B. Stundenplan wird falsch angezeigt">
+    <label style="margin-top:12px">Beschreibung</label><textarea id="problemDescription" rows="5" maxlength="5000" placeholder="Was ist passiert? Was hast du erwartet?" ></textarea>
+    <button class="primary" style="margin-top:14px" onclick="submitProblemReport()">Problem absenden</button>
+    <div class="muted" style="margin-top:10px;font-size:12px">Bitte keine Passwörter oder unnötigen persönlichen Daten eintragen.</div>
+  </div>
+</section>
+${updatesPage()}
+<section id="page-announcements" class="page">
+  <h2>Ankündigungen</h2><div class="muted">Schulweite Infos.</div>
+  <div class="list" style="margin-top:24px">${(s?.announcements||[]).map(x=>`<div class="item">${esc(x)}</div>`).join("")||'<div class="notice">Keine Ankündigungen.</div>'}</div>
+</section>`;
+}
+
+function studentPages(){
+  let s=data.schools.find(x=>x.id===session.schoolId), cid=session.classId, c=s?.classes.find(x=>x.id===session.classId);
+  let weekKey = getWeekKey(currentOffsetWeeks);
+  let weekLabel = getWeekDisplayLabel(currentOffsetWeeks);
+
+  return `
+<section id="page-timetable" class="page">
+  <div class="row between wrap">
+    <div>
+      <h2>Mein Stundenplan</h2>
+      <div class="muted">${esc(s?.name)} · Klasse ${esc(c?.name)}</div>
+    </div>
+  </div>
+  <div class="toolbar">
+    <button class="secondary" onclick="changeWeek(-1)">← Vorherige Woche</button>
+    <button class="secondary" onclick="changeWeek(0)">Aktuelle Woche</button>
+    <button class="secondary" onclick="changeWeek(1)">Nächste Woche →</button>
+    <span style="font-weight:600;margin-left:8px;color:#60a5fa">${weekLabel}</span>
+  </div>
+  <div id="studentTimetableContainer" style="margin-top:16px">
+    ${timetable(s,cid,false,weekKey)}
+  </div>
+</section>
+<section id="page-homework" class="page">
+  <h2>Hausaufgaben</h2><div class="muted">Aktuelle Aufgaben für deine Klasse.</div>
+  <div class="list" style="margin-top:24px">${homeworkList(false)}</div>
+</section>
+<section id="page-messages" class="page">
+  <h2>Nachrichten</h2><div class="muted">Wichtige Mitteilungen.</div>
+  <div class="list" style="margin-top:24px">${messageList(false)}</div>
+</section>
+<section id="page-report_problem" class="page">
+  <h2>Problem melden</h2><div class="muted">Melde einen Fehler oder ein Problem mit Nexora. Beschreibe möglichst genau, was passiert ist.</div>
+  <div class="card" style="padding:22px;margin-top:20px;max-width:760px">
+    <label>Betreff</label><input id="problemTitle" maxlength="160" placeholder="z. B. Stundenplan wird falsch angezeigt">
+    <label style="margin-top:12px">Beschreibung</label><textarea id="problemDescription" rows="5" maxlength="5000" placeholder="Was ist passiert? Was hast du erwartet?" ></textarea>
+    <button class="primary" style="margin-top:14px" onclick="submitProblemReport()">Problem absenden</button>
+    <div class="muted" style="margin-top:10px;font-size:12px">Bitte keine Passwörter oder unnötigen persönlichen Daten eintragen.</div>
+  </div>
+</section>
+${updatesPage()}
+<section id="page-announcements" class="page">
+  <h2>Ankündigungen</h2><div class="muted">Schulweite Infos.</div>
+  <div class="list" style="margin-top:24px">${(s?.announcements||[]).map(x=>`<div class="item">${esc(x)}</div>`).join("")||'<div class="notice">Keine Ankündigungen.</div>'}</div>
+</section>`;
+}
+
+function nav(p){
+  currentPage=p; savePersistentState();
+  document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+  document.getElementById("page-"+p)?.classList.add("active");
+  document.querySelectorAll(".navbtn").forEach(x=>x.classList.toggle("active",x.dataset.page===p));
+  if(p==="timetable"&&session.type==="admin")initAdminSchoolSelectors();
+  if(p==="directors"&&session.type==="admin")loadDirectorRows();
+  if(p==="director_timetable"&&session.type==="director")refreshDirectorTT();
+  if(p==="timetable"&&session.type==="teacher")refreshTeacherStudentTT();
+  if(p==="teacher_lessons"&&session.type==="teacher")refreshTeacherTT();
+  if(p==="classbook"&&(session.type==="teacher"||session.type==="admin"||session.type==="director"))loadClassbookData();
+  if(p==="attendance_reports"&&session.type==="admin")renderAttendanceReports();
+  if(p==="reported_problems"&&session.type==="admin")loadProblemReports();
+  if(p==="updates"||p==="updates_admin")loadNexoraUpdates();
+  if(window.lucide) lucide.createIcons();
+}
+
+function refreshTeacherTT(){
+  let cs=document.getElementById("teacherClassSelect"); if(!cs) return;
+  let s=data.schools.find(x=>x.id===session.schoolId); if(!s) return;
+  let cId=cs.value;
+  let weekKey=getWeekKey(currentOffsetWeeks);
+  let container=document.getElementById("teacherTimetableContainer");
+  if(container) container.innerHTML=timetable(s, cId, true, weekKey);
+  if(window.lucide) lucide.createIcons();
+}
+
+function refreshTeacherStudentTT(){
+  const cs=document.getElementById("teacherStudentClassSelect"); if(!cs) return;
+  const s=data.schools.find(x=>x.id===session.schoolId); if(!s) return;
+  const container=document.getElementById("teacherStudentTimetableContainer");
+  if(container) container.innerHTML=timetable(s,cs.value,true,getWeekKey(currentOffsetWeeks));
+  if(window.lucide) lucide.createIcons();
+}
+
+function manageStudentsModal(sid, cid){
+  const s = data.schools.find(x=>x.id===sid);
+  const c = s?.classes.find(x=>x.id===cid);
+  const clStudents = data.students.filter(st=>st.classId===cid);
+
+  modal(`<h2>Schüler verwalten: Klasse ${esc(c?.name)}</h2>
+    <div class="muted" style="margin-bottom:16px">Füge Schüler zur Klasse hinzu oder entferne sie.</div>
+    <div class="row" style="margin-bottom:16px">
+      <input id="newStudentName" placeholder="Vor- und Nachname des Schülers">
+      <button class="primary" onclick="addStudentToClass('${sid}','${cid}')">Hinzufügen</button>
+    </div>
+    <div class="card table-wrap" style="max-height:260px;overflow-y:auto">
+      <table class="table">
+        <tr><th>Name</th><th>Aktion</th></tr>
+        ${clStudents.length ? clStudents.map(st=>`
+          <tr>
+            <td><b>${esc(st.name)}</b></td>
+            <td><button class="danger" onclick="deleteStudent('${st.id}')">Löschen</button></td>
+          </tr>
+        `).join("") : '<tr><td colspan="2">Keine Schüler in dieser Klasse eingetragen.</td></tr>'}
+      </table>
+    </div>
+    <div class="row" style="justify-content:flex-end;margin-top:20px">
+      <button class="primary" onclick="closeModal()">Fertig</button>
+    </div>`);
+}
+
+async function addStudentToClass(sid, cid){
+  const name = document.getElementById("newStudentName")?.value.trim();
+  if(!name) return toast("Bitte Schülernamen eingeben.");
+  try{
+    await api("students", {
+      method:"POST",
+      body:JSON.stringify({school_id:sid,class_id:cid,name})
+    });
+    await loadData();
+    manageStudentsModal(sid,cid);
+    toast("Schüler hinzugefügt.");
+  }catch(e){
+    console.error("Schüler hinzufügen:",e);
+    toast("Hinzufügen fehlgeschlagen: "+String(e.message||e).slice(0,180));
+  }
+}
+
+async function deleteStudent(studentId){
+  const student=data.students.find(st=>st.id===studentId);
+  if(!confirm(`Schüler „${student?.name||""}“ wirklich löschen?`)) return;
+  try{
+    await api("students?id=eq."+encodeURIComponent(studentId),{method:"DELETE"});
+    const schoolId=student?.schoolId, classId=student?.classId;
+    await loadData();
+    if(schoolId&&classId) manageStudentsModal(schoolId,classId); else closeModal();
+    toast("Schüler gelöscht.");
+  }catch(e){
+    console.error("Schüler löschen:",e);
+    toast("Löschen fehlgeschlagen: "+String(e.message||e).slice(0,180));
+  }
+}
+
+async function loadClassbookData() {
+  const container=document.getElementById("attendanceContainer");
+  const classSelect=document.getElementById("cbClassSelect");
+  if(!container||!classSelect) return;
+  const classId=classSelect.value;
+  const clStudents=data.students.filter(st=>st.classId===classId && (session?.type==="admin" || st.schoolId===session?.schoolId));
+  const date=document.getElementById("cbDate")?.value||new Date().toISOString().slice(0,10);
+  const todays=data.attendance.filter(a=>a.classId===classId&&a.date===date);
+  container.innerHTML=clStudents.length ? `
+    <div class="toolbar" style="margin-top:0">
+      <label style="margin:0">Unterrichtsstunde</label>
+      <select id="attTimeIndex" style="max-width:240px">
+        ${TIMES.map((tm,i)=>`<option value="${i+1}">${i+1}. Stunde · ${tm}</option>`).join("")}
+      </select>
+    </div>
+    <div class="muted" style="margin-bottom:12px">Für jeden Schüler Status auswählen. Bei „Verspätet“ die Minuten eintragen.</div>
+    <div class="table-wrap"><table class="table">
+      <tr><th>Schüler</th><th>Status</th><th>Verspätung (Min.)</th></tr>
+      ${clStudents.map((st,idx)=>{
+        const a=todays.find(x=>x.studentName===st.name);
+        return `<tr>
+          <td><b>${esc(st.name)}</b></td>
+          <td><select id="att_${idx}" class="att-status" style="min-width:170px" data-student="${esc(st.name)}">
+            <option value="present" ${a?.status==="present"?"selected":""}>Anwesend</option>
+            <option value="unexcused" ${a?.status==="unexcused"?"selected":""}>Fehlend</option>
+            <option value="excused" ${a?.status==="excused"?"selected":""}>Krank / entschuldigt</option>
+            <option value="late" ${a?.status==="late"?"selected":""}>Verspätet</option>
+          </select></td>
+          <td><input class="att-late-minutes" data-student="${esc(st.name)}" type="number" min="1" max="600" step="1" value="${a?.lateMinutes||""}" placeholder="z. B. 10" style="max-width:130px"></td>
+        </tr>`;
+      }).join("")}
+    </table></div>
+    <button class="primary" style="margin-top:16px" onclick="saveAttendance()">Anwesenheit speichern</button>
+  ` : '<div class="notice">Keine Schüler in dieser Klasse hinterlegt. Der Administrator muss zuerst Schüler hinzufügen.</div>';
+  const gradesBody=document.getElementById("gradesTableBody");
+  if(gradesBody) gradesBody.innerHTML=renderGradesTableRows(classId);
+  const entryList=document.getElementById("classbookEntriesList"); if(entryList) entryList.innerHTML=renderClassbookEntries(classId);
+  const attendanceList=document.getElementById("attendanceManagementList"); if(attendanceList) attendanceList.innerHTML=renderAttendanceManagement();
+}
+
+async function saveAttendance() {
+  const date=document.getElementById("cbDate")?.value||new Date().toISOString().slice(0,10);
+  const rows=[...document.querySelectorAll(".att-status")];
+  const classId=document.getElementById("cbClassSelect")?.value;
+  const timeIndex=Number(document.getElementById("attTimeIndex")?.value||1);
+  if(!classId||!rows.length) return toast("Keine Schüler zum Speichern vorhanden.");
+  try {
+    for(const r of rows) {
+      const studentName=r.dataset.student;
+      const status=r.value;
+      const minutesInput=[...document.querySelectorAll(".att-late-minutes")].find(x=>x.dataset.student===studentName);
+      const lateMinutes=status==="late"?Number(minutesInput?.value||0):0;
+      if(status==="late"&&(!Number.isInteger(lateMinutes)||lateMinutes<1||lateMinutes>600))
+        throw new Error(`Bitte für ${studentName} eine Verspätung von 1 bis 600 Minuten eintragen.`);
+      const selectedSchoolId = session.type === "admin"
+        ? data.schools.find(sc => sc.classes.some(cl => cl.id === classId))?.id
+        : session.schoolId;
+      if (!selectedSchoolId || selectedSchoolId === "undefined" || !classId || classId === "undefined") {
+        throw new Error("Schule oder Klasse konnte nicht zugeordnet werden. Bitte Klasse erneut auswählen.");
+      }
+      const payload={
+        school_id:selectedSchoolId,class_id:classId,student_name:studentName,
+        date,time_index:timeIndex,status,late_minutes:lateMinutes
+      };
+      const qs=`attendance?select=id&school_id=eq.${encodeURIComponent(selectedSchoolId)}&class_id=eq.${encodeURIComponent(classId)}&student_name=eq.${encodeURIComponent(studentName)}&date=eq.${encodeURIComponent(date)}&time_index=eq.${timeIndex}&limit=1`;
+      const existing=await api(qs);
+      if(existing.length) {
+        await api("attendance?id=eq."+encodeURIComponent(existing[0].id),{method:"PATCH",body:JSON.stringify(payload)});
+      } else {
+        await api("attendance",{method:"POST",body:JSON.stringify(payload)});
+      }
+    }
+    await loadData();
+    loadClassbookData();
+    toast("Anwesenheit gespeichert.");
+  } catch(e) {
+    console.error("Anwesenheit speichern:",e);
+    toast("Speichern fehlgeschlagen: "+String(e.message||e).slice(0,180));
+  }
+}
+
+function canManageSchoolRecords(schoolId){
+ if(session?.type==="admin") return true;
+ return (session?.type==="director" && session.schoolId===schoolId);
+}
+function renderClassbookEntries(classId){
+ const entries=(data.classbookEntries||[]).filter(e=>(!classId||e.classId===classId)&&(session?.type==="admin"||e.schoolId===session?.schoolId));
+ if(window._classbookLoadError) return '<div class="notice" style="border-color:#dc2626;color:#fecaca">⚠️ Klassenbucheinträge konnten nicht aus Supabase geladen werden. Die Datenbank-/RLS-Einstellungen prüfen. Fehler: '+esc(window._classbookLoadError)+'</div>'+ (entries.length ? entries.map(e=>'<div class="item" style="margin-top:10px"><b>'+esc(e.studentName)+' · '+esc(e.title)+'</b><p>'+esc(e.description)+'</p></div>').join('') : '');
+ if(!entries.length) return '<div class="notice">Noch keine Klassenbucheinträge vorhanden.</div>';
+ return entries.map(e=>{const cls=data.schools.flatMap(sc=>sc.classes).find(c=>c.id===e.classId);const tag=e.entryType==="incident"?"Vorfall":e.entryType==="positive"?"Positive Beobachtung":"Notiz";const actions=canManageSchoolRecords(e.schoolId)?`<div class="row wrap" style="margin-top:12px"><button class="secondary" onclick="editClassbookEntry('${e.id}')">Bearbeiten</button><button class="danger" onclick="deleteClassbookEntry('${e.id}')">Endgültig löschen</button></div>`:"";return `<div class="item" style="margin-top:10px"><div class="row between wrap"><b>${esc(e.studentName)} · ${esc(e.title)}</b><span class="badge ${e.entryType==="incident"?"red":"orange"}">${tag}</span></div><div class="muted small">${esc(cls?.name||"")} · ${esc(e.date||"")} · ${esc(e.author||"Lehrkraft")}</div><p style="white-space:pre-wrap;margin-top:8px">${esc(e.description)}</p>${actions}</div>`}).join("");
+}
+function editClassbookEntry(id){
+ const e=data.classbookEntries.find(x=>x.id===id);if(!e||!canManageSchoolRecords(e.schoolId))return toast("Keine Berechtigung für diesen Eintrag.");
+ modal(`<h2>Klassenbucheintrag bearbeiten</h2><div class="muted">${esc(e.studentName)} · ${esc(e.date||"")}</div><label>Art des Eintrags</label><select id="editCbType"><option value="incident" ${e.entryType==="incident"?"selected":""}>Vorfall / Regelverstoß</option><option value="positive" ${e.entryType==="positive"?"selected":""}>Positive Beobachtung</option><option value="note" ${e.entryType==="note"?"selected":""}>Sonstige Notiz</option></select><label>Titel</label><input id="editCbTitle" maxlength="180" value="${esc(e.title)}"><label>Beschreibung</label><textarea id="editCbDescription" maxlength="5000">${esc(e.description)}</textarea><div class="row" style="justify-content:flex-end;margin-top:18px"><button class="secondary" onclick="closeModal()">Abbrechen</button><button class="primary" onclick="saveEditedClassbookEntry('${e.id}')">Änderungen speichern</button></div>`);
+}
+async function saveEditedClassbookEntry(id){
+ const e=data.classbookEntries.find(x=>x.id===id);if(!e||!canManageSchoolRecords(e.schoolId))return toast("Keine Berechtigung.");
+ const title=document.getElementById("editCbTitle")?.value.trim(),description=document.getElementById("editCbDescription")?.value.trim(),entryType=document.getElementById("editCbType")?.value;
+ if(!title||!description)return toast("Titel und Beschreibung dürfen nicht leer sein.");
+ try{await api("classbook_entries?id=eq."+encodeURIComponent(id),{method:"PATCH",body:JSON.stringify({title,description,entry_type:entryType})});await loadData();closeModal();const list=document.getElementById("classbookEntriesList");if(list)list.innerHTML=renderClassbookEntries(document.getElementById("cbClassSelect")?.value||"");toast("Klassenbucheintrag aktualisiert.");}
+ catch(err){console.error(err);toast("Bearbeiten fehlgeschlagen: "+String(err.message||err).slice(0,180));}
+}
+async function deleteClassbookEntry(id){
+ const e=data.classbookEntries.find(x=>x.id===id);if(!e||!canManageSchoolRecords(e.schoolId))return toast("Keine Berechtigung für diesen Eintrag.");
+ if(!confirm("Diesen Klassenbucheintrag dauerhaft aus Supabase löschen?")) return;
+ try{await api("classbook_entries?id=eq."+encodeURIComponent(id),{method:"DELETE"});await loadData();const list=document.getElementById("classbookEntriesList");if(list)list.innerHTML=renderClassbookEntries(document.getElementById("cbClassSelect")?.value||"");toast("Eintrag dauerhaft gelöscht.");}catch(e){toast("Löschen fehlgeschlagen: "+String(e.message||e).slice(0,180));}
+}
+function renderAttendanceManagement(){
+ const rows=(data.attendance||[]).filter(a=>(session?.type==="admin"||a.schoolId===session?.schoolId)&&a.status!=="present").sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+ if(!rows.length)return '<div class="notice">Keine Fehlzeiten oder Verspätungen gespeichert.</div>';
+ return '<div class="table-wrap"><table class="table"><tr><th>Datum / Stunde</th><th>Schüler</th><th>Klasse</th><th>Status</th><th>Aktionen</th></tr>'+rows.map(a=>{const cls=data.schools.flatMap(sc=>sc.classes).find(c=>c.id===a.classId);const status=a.status==="late"?`Verspätet · ${Number(a.lateMinutes)||0} Min.`:(a.status==="excused"?"Krank / entschuldigt":"Fehlend");return `<tr><td>${esc(a.date)}<div class="muted small">${esc(TIMES[(Number(a.timeIndex)||1)-1]||"")}</div></td><td>${esc(a.studentName)}</td><td>${esc(cls?.name||"-")}</td><td>${esc(status)}</td><td><button class="secondary" onclick="editAttendance('${a.id}')">Bearbeiten</button> <button class="danger" onclick="deleteAttendance('${a.id}')">Löschen</button></td></tr>`}).join("")+'</table></div>';
+}
+function editAttendance(id){
+ const a=data.attendance.find(x=>x.id===id);if(!a||!canManageSchoolRecords(a.schoolId))return toast("Keine Berechtigung für diesen Eintrag.");
+ modal(`<h2>Fehlzeit / Verspätung bearbeiten</h2><div class="muted">${esc(a.studentName)}</div><label>Datum</label><input id="editAttDate" type="date" value="${esc(a.date)}"><label>Unterrichtsstunde</label><select id="editAttTime">${TIMES.map((t,i)=>`<option value="${i+1}" ${Number(a.timeIndex)===i+1?"selected":""}>${i+1}. Stunde · ${t}</option>`).join("")}</select><label>Status</label><select id="editAttStatus"><option value="unexcused" ${a.status==="unexcused"?"selected":""}>Fehlend</option><option value="excused" ${a.status==="excused"?"selected":""}>Krank / entschuldigt</option><option value="late" ${a.status==="late"?"selected":""}>Verspätet</option><option value="present" ${a.status==="present"?"selected":""}>Anwesend</option></select><label>Verspätung in Minuten (nur bei Verspätet)</label><input id="editAttMinutes" type="number" min="1" max="600" value="${Number(a.lateMinutes)||""}"><div class="row" style="justify-content:flex-end;margin-top:18px"><button class="secondary" onclick="closeModal()">Abbrechen</button><button class="primary" onclick="saveEditedAttendance('${a.id}')">Speichern</button></div>`);
+}
+async function saveEditedAttendance(id){
+ const a=data.attendance.find(x=>x.id===id);if(!a||!canManageSchoolRecords(a.schoolId))return toast("Keine Berechtigung.");
+ const date=document.getElementById("editAttDate")?.value,status=document.getElementById("editAttStatus")?.value,timeIndex=Number(document.getElementById("editAttTime")?.value),minutes=status==="late"?Number(document.getElementById("editAttMinutes")?.value||0):0;
+ if(!date)return toast("Bitte ein Datum auswählen.");if(status==="late"&&(!Number.isInteger(minutes)||minutes<1||minutes>600))return toast("Bitte 1 bis 600 Verspätungsminuten eintragen.");
+ try{await api("attendance?id=eq."+encodeURIComponent(id),{method:"PATCH",body:JSON.stringify({date,time_index:timeIndex,status,late_minutes:minutes})});await loadData();closeModal();loadClassbookData();renderAttendanceReports();toast("Fehlzeit aktualisiert.");}catch(err){console.error(err);toast("Änderung fehlgeschlagen: "+String(err.message||err).slice(0,180));}
+}
+async function deleteAttendance(id){
+ const a=data.attendance.find(x=>x.id===id);if(!a||!canManageSchoolRecords(a.schoolId))return toast("Keine Berechtigung für diesen Eintrag.");
+ if(!confirm(`Fehlzeit von ${a.studentName} am ${a.date} dauerhaft löschen?`))return;
+ try{await api("attendance?id=eq."+encodeURIComponent(id),{method:"DELETE"});await loadData();loadClassbookData();renderAttendanceReports();toast("Fehlzeit dauerhaft gelöscht.");}catch(err){console.error(err);toast("Löschen fehlgeschlagen: "+String(err.message||err).slice(0,180));}
+}
+
+async function saveClassbookEntry(){
+ const studentId=document.getElementById("entryStudent")?.value;
+ const entryType=document.getElementById("entryType")?.value||"incident";
+ const title=document.getElementById("entryTitle")?.value.trim();
+ const description=document.getElementById("entryDescription")?.value.trim();
+ const entryDate=document.getElementById("cbDate")?.value||new Date().toISOString().slice(0,10);
+ if(!studentId||!title||!description) return toast("Bitte Schüler, Titel und Beschreibung ausfüllen.");
+ if(!session||!["teacher","admin","director"].includes(session.type)) return toast("Für diese Aktion ist keine Berechtigung vorhanden.");
+ const student=data.students.find(st=>st.id===studentId && (session.type==="admin" || st.schoolId===session.schoolId));
+ if(!student) return toast("Schüler konnte keiner Klasse zugeordnet werden.");
+ const studentName=student.name;
+ const schoolId=student.schoolId||data.schools.find(sc=>sc.classes.some(c=>c.id===student.classId))?.id;
+ if(!schoolId||!student.classId) return toast("Schule oder Klasse fehlt.");
+ try{
+  const teacher=data.teachers.find(t=>t.id===session.teacherId||t.id===session.userId);
+  const payload={school_id:schoolId,class_id:student.classId,student_name:studentName,entry_type:entryType,title,description,entry_date:entryDate,author:session.type==="admin"?"Administrator":(session.type==="director"?"Schuldirektor · "+(session.name||""):(teacher?.name||session.name||"Lehrkraft"))};
+  // return=representation ist wichtig: so prüfen wir, dass Supabase den Eintrag wirklich angenommen hat.
+  const saved=await api("classbook_entries",{method:"POST",body:JSON.stringify(payload)});
+  if(!Array.isArray(saved)||saved.length===0||!saved[0].id) throw new Error("Supabase hat keinen gespeicherten Datensatz zurückgegeben. Bitte Tabelle, Pflichtspalten und RLS-Berechtigungen prüfen.");
+  window._classbookLoadError="";
+  await loadData();
+  const list=document.getElementById("classbookEntriesList");
+  if(list) list.innerHTML=renderClassbookEntries(document.getElementById("cbClassSelect")?.value||student.classId);
+  const titleField=document.getElementById("entryTitle"),descriptionField=document.getElementById("entryDescription");
+  if(titleField) titleField.value="";
+  if(descriptionField) descriptionField.value="";
+  toast("Klassenbucheintrag dauerhaft in Supabase gespeichert.");
+ }catch(e){
+  console.error("Klassenbucheintrag speichern:",e);
+  toast("Speichern fehlgeschlagen: "+String(e.message||e).slice(0,200));
+ }
+}
+async function deleteClassbookEntry(id){
+ if(session?.type!=="admin") return toast("Nur der Administrator kann Einträge löschen.");
+ if(!confirm("Diesen Klassenbucheintrag dauerhaft löschen?")) return;
+ try{await api("classbook_entries?id=eq."+encodeURIComponent(id),{method:"DELETE"});await loadData();const list=document.getElementById("classbookEntriesList");if(list)list.innerHTML=renderClassbookEntries(document.getElementById("cbClassSelect")?.value||"");toast("Eintrag gelöscht.");}catch(e){toast("Löschen fehlgeschlagen: "+String(e.message||e).slice(0,180));}
+}
+
+async function saveGrade() {
+  let student = document.getElementById("gradeStudent").value.trim();
+  let subject = document.getElementById("gradeSubject").value.trim();
+  let value = document.getElementById("gradeValue").value.trim();
+  let classId = document.getElementById("cbClassSelect")?.value;
+  
+  if(!student || !subject || !value) return toast("Bitte alle Felder ausfüllen.");
+  const selectedSchoolId = session?.type === "admin"
+    ? data.schools.find(sc => sc.classes.some(cl => cl.id === classId))?.id
+    : session?.schoolId;
+  if (!selectedSchoolId || selectedSchoolId === "undefined" || !classId || classId === "undefined")
+    return toast("Schule oder Klasse fehlt. Bitte im Klassenbuch eine gültige Klasse auswählen.");
+
+  try {
+    await api("grades", {
+      method: "POST",
+      body: JSON.stringify({
+        school_id: selectedSchoolId,
+        class_id: classId,
+        student_name: student,
+        subject: subject,
+        grade_type: "Leistungsnachweis",
+        grade_value: value
+      })
+    });
+    await loadData();
+    toast("Note erfolgreich eingetragen!");
+    document.getElementById("gradeStudent").value = "";
+    document.getElementById("gradeValue").value = "";
+    let gradesBody = document.getElementById("gradesTableBody");
+    if(gradesBody) gradesBody.innerHTML = renderGradesTableRows(classId);
+  } catch(e) {
+    toast("Fehler beim Speichern der Note.");
+  }
+}
+
+async function deleteGrade(gradeId){
+  if(!confirm("Note löschen?")) return;
+  try{
+    await api("grades?id=eq."+encodeURIComponent(gradeId), { method: "DELETE" });
+    await loadData();
+    let classId = document.getElementById("cbClassSelect")?.value;
+    let gradesBody = document.getElementById("gradesTableBody");
+    if(gradesBody) gradesBody.innerHTML = renderGradesTableRows(classId);
+    toast("Note gelöscht.");
+  }catch(e){
+    toast("Fehler beim Löschen.");
+  }
+}
+
+function renderGradesTableRows(classId){
+  let filtered = classId ? data.grades.filter(g => g.classId === classId) : data.grades;
+  if(session?.type!=="admin") filtered=filtered.filter(g=>g.schoolId===session?.schoolId);
+  return filtered.length ? filtered.map(g => `
+    <tr>
+      <td><b>${esc(g.studentName)}</b></td>
+      <td>${esc(g.subject)}</td>
+      <td>${esc(g.gradeType)}</td>
+      <td><span class="badge orange">${esc(g.gradeValue)}</span></td>
+      <td><button class="danger" onclick="deleteGrade('${g.id}')">Löschen</button></td>
+    </tr>
+  `).join("") : '<tr><td colspan="5">Keine Noten für diese Klasse eingetragen.</td></tr>';
+}
+
+function renderAttendanceReportRows(){
+  let filterCid = document.getElementById("reportClassFilter")?.value || "";
+  let filtered = filterCid ? data.attendance.filter(a => a.classId === filterCid) : data.attendance;
+  filtered = filtered.filter(a => a.status !== "present");
+
+  return filtered.length ? filtered.map(a => {
+    let statusBadge = "";
+    if(a.status === "excused") statusBadge = '<span class="badge orange">Entschuldigt (Krank)</span>';
+    else if(a.status === "unexcused") statusBadge = '<span class="badge red">Fehlend</span>';
+    else if(a.status === "late") statusBadge = `<span class="badge green">Verspätet · ${Number(a.lateMinutes)||0} Min.</span>`;
+
+    const cObj = data.schools.flatMap(s=>s.classes).find(c=>c.id===a.classId);
+    return `
+      <tr>
+        <td>${esc(a.date)}<div class="muted small">${esc(TIMES[(Number(a.timeIndex)||1)-1]||"")}</div></td>
+        <td><b>${esc(a.studentName)}</b></td>
+        <td>${esc(cObj?.name || "-")}</td>
+        <td>${statusBadge}</td>
+        <td>${canManageSchoolRecords(a.schoolId)?`<button class="secondary" onclick="editAttendance('${a.id}')">Bearbeiten</button> <button class="danger" onclick="deleteAttendance('${a.id}')">Löschen</button>`:""}</td>
+      </tr>
+    `;
+  }).join("") : '<tr><td colspan="5">Keine aktuellen Fehlzeiten gemeldet.</td></tr>';
+}
+
+function renderAttendanceReports(){
+  let tbody = document.getElementById("attendanceReportTableBody");
+  if(tbody) tbody.innerHTML = renderAttendanceReportRows();
+}
+
+function getMonday(d = new Date()) {
+  const date = new Date(d);
+  const day = date.getDay();
+  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(date.setDate(diff));
+}
+
+function getWeekKey(offset = 0){
+  const monday = getMonday(new Date());
+  monday.setDate(monday.getDate() + (offset * 7));
+  return monday.toISOString().slice(0,10);
+}
+
+function getWeekDisplayLabel(offset = 0){
+  const monday = getMonday(new Date());
+  monday.setDate(monday.getDate() + (offset * 7));
+  const friday = new Date(monday);
+  friday.setDate(friday.getDate() + 4);
+  
+  const options = { day: '2-digit', month: '2-digit' };
+  return `${monday.toLocaleDateString('de-DE', options)} – ${friday.toLocaleDateString('de-DE', options)}` + (offset === 0 ? ' (Aktuell)' : '');
+}
+
+function changeWeek(val){
+  if(val === 0) currentOffsetWeeks = 0;
+  else currentOffsetWeeks += val;
+  render();
+}
+
+function checkAutoMondayReset(){
+  const lastSavedMonday = localStorage.getItem("untas_last_monday_v15");
+  const currentMondayKey = getWeekKey(0);
+  if(lastSavedMonday !== currentMondayKey){
+    currentOffsetWeeks = 0;
+    localStorage.setItem("untas_last_monday_v15", currentMondayKey);
+  }
+}
+checkAutoMondayReset();
+setInterval(checkAutoMondayReset, 60000);
+
+function lessonState(l,week){
+ return data.weekOverrides.find(o=>o.lessonId===l.id&&o.week===week)||{status:"normal",isExam:null,homeworkId:""};
+}
+
+function sameLesson(a,b,week){
+  if(!a||!b) return false;
+  const sa=lessonState(a,week), sb=lessonState(b,week);
+  const examA = sa.isExam !== null ? sa.isExam : a.isExam;
+  const examB = sb.isExam !== null ? sb.isExam : b.isExam;
+  const hwA = sa.homeworkId || "";
+  const hwB = sb.homeworkId || "";
+  return a.subject===b.subject && a.teacher===b.teacher && a.room===b.room &&
+    (a.color||"")===(b.color||"") && (a.note||"")===(b.note||"") && hwA===hwB && Boolean(examA)===Boolean(examB) &&
+    sa.status===sb.status && (sa.subTeacher||"")===(sb.subTeacher||"") && (sa.subRoom||"")===(sb.subRoom||"");
+}
+
+function lessonCardHTML(s,l,week,canEdit,compact=false){
+  const st=lessonState(l,week), cancelled=st.status==="cancelled", sub=st.status==="substitution";
+  const teacher=sub?(st.subTeacher||l.teacher):l.teacher, room=sub?(st.subRoom||l.room):l.room;
+  const colorStyle=l.color||"border-left:4px solid #3b82f6;background:rgba(37,99,235,0.15);color:#60a5fa;";
+  const hasHw = Boolean(st.homeworkId);
+  const isExam = st.isExam !== null ? st.isExam : l.isExam;
+
+  const clickAction = canEdit 
+    ? (session.type==="teacher" ? `teacherLessonModal('${s.id}','${l.id}','${week}')` : `lessonModal('${s.id}','${l.id}',null,null,'${week}')`)
+    : `studentLessonModal('${s.id}','${l.id}','${week}')`;
+
+  return `<div class="lesson ${cancelled?"cancelled":""} ${sub?"substitution":""} ${isExam?"exam":""} ${compact?"merged":""}" style="${esc(colorStyle)}" onclick="${clickAction}">
+    ${hasHw ? '<span class="hw-icon">🏠</span>' : ''}
+    <strong>${esc(l.subject)}</strong><small>${esc(teacher)}${room?" · "+esc(room):""}</small>
+    ${cancelled?'<span class="badge red">Entf.</span>':sub?'<span class="badge green">Vertr.</span>':''}
+    ${isExam?'<span class="badge orange">Arbeit</span>':''}
+  </div>`;
+}
+
+function timetable(s,cid,canEdit,week){
+  const ls=s.lessons.filter(l=>l.classId===cid);
+  const monday = new Date((week || getWeekKey(0)) + "T12:00:00");
+  const friday = new Date(monday); friday.setDate(friday.getDate()+4);
+  const weekStart = monday.toISOString().slice(0,10), weekEnd = friday.toISOString().slice(0,10);
+  const weekEvents = (data.calendar||[]).filter(e=>e.schoolId===s.id && e.date && e.date>=weekStart && e.date<=weekEnd)
+    .sort((a,b)=>a.date.localeCompare(b.date));
+  let eventHtml = weekEvents.length ? `<div class="notice" style="margin-bottom:12px"><b>Schulveranstaltungen diese Woche</b><div style="display:grid;gap:8px;margin-top:8px">${weekEvents.map(e=>`<div style="padding:9px 11px;border-radius:9px;background:rgba(37,99,235,.12);border:1px solid rgba(96,165,250,.3)"><b>📅 ${esc(new Date(e.date+"T12:00:00").toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"2-digit"}))} · ${esc(e.title)}</b>${e.text?`<div style="margin-top:4px">${esc(e.text)}</div>`:""}</div>`).join("")}</div></div>` : "";
+  let out=`<div class="card timetable">${eventHtml}<div class="grid"><div class="head" style="grid-column:1;grid-row:1">Zeit</div>`;
+  DAYS.forEach((d,i)=>out+=`<div class="head" style="grid-column:${i+2};grid-row:1">${d}</div>`);
+  TIMES.forEach((t,ti)=>out+=`<div class="time" style="grid-column:1;grid-row:${ti+2}">${t}</div>`);
+
+  for(let d=0;d<5;d++){
+    const dayLs=ls.filter(l=>l.day===d);
+    const used=new Set();
+    for(let ti=0;ti<TIMES.length;ti++){
+      if(used.has(ti)) continue;
+      const at=dayLs.filter(l=>l.time===ti);
+      if(at.length){
+        const first=at[0];
+        let span=1;
+        if(at.length===1){
+          while(ti+span<TIMES.length){
+            const next=dayLs.filter(l=>l.time===ti+span);
+            if(next.length===1 && sameLesson(first,next[0],week)) span++; else break;
+          }
+        }
+        for(let x=0;x<span;x++) used.add(ti+x);
+        let inner;
+        if(at.length===1){
+          const editable = canEdit && (session.type==="admin" || session.type==="director" || (session.type==="teacher" && teacherOwnsLesson(first,data.teachers.find(t=>t.id===session.teacherId))));
+          inner=lessonCardHTML(s,first,week,editable,span>1);
+        } else {
+          const two=at.slice(0,2);
+          inner=two.map(l=>{
+            const editable = canEdit && (session.type==="admin" || session.type==="director" || (session.type==="teacher" && teacherOwnsLesson(l,data.teachers.find(t=>t.id===session.teacherId))));
+            return `<div style="flex:1">${lessonCardHTML(s,l,week,editable,false)}</div>`;
+          }).join("");
+        }
+        out+=`<div class="lesson-slot" style="grid-column:${d+2};grid-row:${ti+2}/span ${span}">${inner}</div>`;
+      }else{
+        const clickNew = ((session.type==="admin"||session.type==="director") ? `lessonModal('${s.id}',null,${d},${ti},'${week}')` : '');
+        out+=`<div style="grid-column:${d+2};grid-row:${ti+2}">${(canEdit && (session.type==="admin"||session.type==="director"))?`<div class="empty" onclick="${clickNew}">+</div>`:'<div class="empty"></div>'}</div>`;
+      }
+    }
+  }
+  return out+"</div></div>";
+}
+
+function initAdminSchoolSelectors(){
+  let ss=document.getElementById("adminSchool"),cs=document.getElementById("adminClass");if(!ss)return;
+  if(!ss.options.length){
+    ss.innerHTML=data.schools.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");
+  }
+  let s=data.schools.find(x=>x.id===ss.value)||data.schools[0];
+  if(s && cs){
+    const currentSelectedClass = cs.value;
+    cs.innerHTML=(s.classes||[]).map(c=>`<option value="${c.id}" ${c.id===currentSelectedClass?"selected":""}>${esc(c.name)}</option>`).join("");
+  }
+  refreshAdminTT();
+}
+
+function refreshAdminTT(){
+  let ss=document.getElementById("adminSchool"),cs=document.getElementById("adminClass");if(!ss)return;
+  let s=data.schools.find(x=>x.id===ss.value)||data.schools[0];
+  if(s && cs && cs.options.length === 0){
+    cs.innerHTML=(s.classes||[]).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("");
+  }
+  let tElem=document.getElementById("adminTT");
+  let weekKey = getWeekKey(currentOffsetWeeks);
+  if(tElem)tElem.innerHTML=s&&s.classes.length?timetable(s,cs?.value,true,weekKey):'<div class="notice">Keine Klasse vorhanden.</div>';
+}
+
+function schoolModal(id){
+  let s=data.schools.find(x=>x.id===id);
+  modal(`<h2>${s?"Schule bearbeiten":"Neue Schule"}</h2><label>Name</label><input id="mName" value="${esc(s?.name||"")}"><label>Ort</label><input id="mCity" value="${esc(s?.city||"")}"><div class="row" style="justify-content:flex-end;margin-top:20px"><button class="secondary" onclick="closeModal()">Abbrechen</button><button class="primary" onclick="saveSchool('${id||""}')">Speichern</button></div>`);
+}
+async function saveSchool(id){
+  let name=document.getElementById("mName").value.trim(),city=document.getElementById("mCity").value.trim();if(!name)return toast("Name fehlt.");
+  try{
+    if(id)await api("schools?id=eq."+encodeURIComponent(id),{method:"PATCH",body:JSON.stringify({name,city})});
+    else await api("schools",{method:"POST",body:JSON.stringify({name,city,announcements:[]})});
+    await loadData();closeModal();render();toast("Gespeichert.");
+  }catch(e){toast("Fehler beim Speichern.")}
+}
+async function deleteSchool(id){
+  if(!confirm("Schule wirklich löschen?"))return;
+  try{await api("schools?id=eq."+encodeURIComponent(id),{method:"DELETE"});await loadData();render();toast("Gelöscht.");}catch(e){toast("Fehler.")}
+}
+
+function classModal(sid,cid){
+  let s=data.schools.find(x=>x.id===sid)||data.schools[0],c=s?.classes.find(x=>x.id===cid);
+  modal(`<h2>${c?"Klasse bearbeiten":"Neue Klasse"}</h2><label>Schule</label><select id="mSchool">${data.schools.map(x=>`<option value="${x.id}" ${x.id===s?.id?"selected":""}>${esc(x.name)}</option>`).join("")}</select><label>Klassenname</label><input id="mClass" value="${esc(c?.name||"")}"><label>Benutzername</label><input id="mUser" value="${esc(c?.username||"")}"><label>Passwort</label><input id="mPass" type="password" placeholder="Neues Passwort"><div class="row" style="justify-content:flex-end;margin-top:20px"><button class="secondary" onclick="closeModal()">Abbrechen</button><button class="primary" onclick="saveClass('${sid||""}','${cid||""}')">Speichern</button></div>`);
+}
+async function saveClass(oldSid,cid){
+  let sid=document.getElementById("mSchool").value,name=document.getElementById("mClass").value.trim(),username=document.getElementById("mUser").value.trim(),password=document.getElementById("mPass").value;
+  if(!name||!username)return toast("Ausfüllen!");
+  try{
+    let body={school_id:sid,name,username};
+    if(password)body.password_hash=password;
+    if(cid)await api("classes?id=eq."+encodeURIComponent(cid),{method:"PATCH",body:JSON.stringify(body)});
+    else await api("classes",{method:"POST",body:JSON.stringify({...body,password_hash:password})});
+    await loadData();closeModal();render();toast("Klasse gespeichert.");
+  }catch(e){toast("Fehler.")}
+}
+async function deleteClass(sid,cid){
+  if(!confirm("Klasse löschen?"))return;
+  try{await api("classes?id=eq."+encodeURIComponent(cid),{method:"DELETE"});await loadData();render();toast("Gelöscht.");}catch(e){toast("Fehler.")}
+}
+
+function directorTeacherModal(tid){
+  if(session?.type!=="director")return toast("Nur der Schuldirektor kann Lehrer dieser Schule verwalten.");
+  const schoolId=session.schoolId;
+  const t=tid?data.teachers.find(x=>x.id===tid&&x.schoolId===schoolId):null;
+  if(tid&&!t)return toast("Dieser Lehrer gehört nicht zu deiner Schule.");
+  const subjects=getSchoolSubjects(schoolId);
+  const selected=t&&t.subject?t.subject.split(',').map(x=>x.trim()).filter(Boolean):[];
+  modal(`<h2>${t?"Lehrer bearbeiten":"Lehrer hinzufügen"}</h2><div class="notice" style="margin-bottom:12px">Schule: ${esc(data.schools.find(x=>x.id===schoolId)?.name||"Deine Schule")} (fest zugeordnet)</div><label>Name</label><input id="tName" value="${esc(t?.name||"")}" placeholder="z. B. Frau Müller"><label>Benutzername / Kürzel</label><input id="tUser" value="${esc(t?.username||"")}" placeholder="z. B. MUELLER"><label>Fächer (Mehrfachauswahl)</label><div id="teacherSubjectCheckboxes" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:160px;overflow-y:auto;padding:12px;background:rgba(9,13,22,0.6);border:1px solid var(--line);border-radius:12px;margin-top:6px">${subjects.map(sub=>`<label style="display:flex;align-items:center;gap:8px;margin:0;text-transform:none;font-size:13px;color:var(--text);cursor:pointer"><input type="checkbox" name="teacherSubject" value="${esc(sub)}" ${selected.includes(sub)?"checked":""} style="width:auto"> ${esc(sub)}</label>`).join("")}</div><label>Passwort ${t?"(leer lassen, um es beizubehalten)":""}</label><input id="tPass" type="password" placeholder="${t?"Neues Passwort":"Passwort festlegen"}"><div class="row" style="justify-content:flex-end;margin-top:20px"><button class="secondary" onclick="closeModal()">Abbrechen</button><button class="primary" onclick="saveTeacher('${tid||""}')">Speichern</button></div>`);
+}
+
+function teacherModal(tid){
+  let t=data.teachers.find(x=>x.id===tid);
+  let schoolId = t ? t.schoolId : data.schools[0]?.id;
+  let allSubjects = getSchoolSubjects(schoolId);
+  let teacherSubjects = t && t.subject ? t.subject.split(',').map(x=>x.trim()).filter(Boolean) : [];
+
+  modal(`<h2>${t?"Lehrer bearbeiten":"Neuer Lehrer"}</h2>
+    <label>Schule</label><select id="tSchool" onchange="updateTeacherSubjectCheckboxes()">${data.schools.map(x=>`<option value="${x.id}" ${schoolId===x.id?"selected":""}>${esc(x.name)}</option>`).join("")}</select>
+    <label>Name</label><input id="tName" value="${esc(t?.name||"")}" placeholder="z.B. Herr Müller">
+    <label>Benutzername / Kürzel</label><input id="tUser" value="${esc(t?.username||"")}" placeholder="z.B. MUE">
+    
+    <label>Fächer (Mehrfachauswahl)</label>
+    <div id="teacherSubjectCheckboxes" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;max-height:160px;overflow-y:auto;padding:12px;background:rgba(9,13,22,0.6);border:1px solid var(--line);border-radius:12px;margin-top:6px">
+      ${allSubjects.map(sub => `
+        <label style="display:flex;align-items:center;gap:8px;margin:0;text-transform:none;font-size:13px;color:var(--text);cursor:pointer">
+          <input type="checkbox" name="teacherSubject" value="${esc(sub)}" ${teacherSubjects.includes(sub)?"checked":""} style="width:auto"> ${esc(sub)}
+        </label>
+      `).join("")}
+    </div>
+
+    <label>Passwort</label><input id="tPass" type="password" placeholder="Passwort">
+    <div class="row" style="justify-content:flex-end;margin-top:20px"><button class="secondary" onclick="closeModal()">Abbrechen</button><button class="primary" onclick="saveTeacher('${tid||""}')">Speichern</button></div>`);
+}
+
+function updateTeacherSubjectCheckboxes(){
+  let sid = document.getElementById("tSchool").value;
+  let allSubjects = getSchoolSubjects(sid);
+  let container = document.getElementById("teacherSubjectCheckboxes");
+  if(container){
+    container.innerHTML = allSubjects.map(sub => `
+      <label style="display:flex;align-items:center;gap:8px;margin:0;text-transform:none;font-size:13px;color:var(--text);cursor:pointer">
+        <input type="checkbox" name="teacherSubject" value="${esc(sub)}" style="width:auto"> ${esc(sub)}
+      </label>
+    `).join("");
+  }
+}
+
+async function saveTeacher(tid){
+  const directorMode=session?.type==="director";
+  const existing=tid?data.teachers.find(x=>x.id===tid):null;
+  if(directorMode&&tid&&(!existing||existing.schoolId!==session.schoolId))return toast("Du darfst nur Lehrer deiner Schule bearbeiten.");
+  if(directorMode&&!session.schoolId)return toast("Deiner Direktor-Anmeldung ist keine Schule zugeordnet.");
+  let school_id=directorMode?session.schoolId:document.getElementById("tSchool")?.value;
+  let name=document.getElementById("tName").value.trim(), username=document.getElementById("tUser").value.trim(), password=document.getElementById("tPass").value;
+  
+  let checkboxes = document.querySelectorAll('input[name="teacherSubject"]:checked');
+  let selectedSubjects = Array.from(checkboxes).map(cb => cb.value);
+  let subjectStr = selectedSubjects.join(", ");
+
+  if(!name||!username)return toast("Name und Kürzel erforderlich.");
+  if(!tid&&!password)return toast("Bitte beim Anlegen eines Lehrers ein Passwort festlegen.");
+  try{
+    let body={school_id,name,username,subject:subjectStr};
+    if(password)body.password_hash=password;
+    if(tid) await api("teachers?id=eq."+encodeURIComponent(tid)+(directorMode?"&school_id=eq."+encodeURIComponent(session.schoolId):""),{method:"PATCH",body:JSON.stringify(body)});
+    else await api("teachers",{method:"POST",body:JSON.stringify({...body,password_hash:password})});
+    await loadData(); closeModal(); render(); toast("Lehrer gespeichert.");
+  }catch(e){toast("Fehler beim Speichern des Lehrers.")}
+}
+
+async function deleteTeacher(tid){
+  if(!confirm("Lehrer wirklich löschen?"))return;
+  try{await api("teachers?id=eq."+encodeURIComponent(tid),{method:"DELETE"});await loadData();render();toast("Gelöscht.");}catch(e){toast("Fehler.")}
+}
+
+function normalizeTeacherName(v){
+  return String(v||"").toLowerCase().replace(/\b(herr|frau|teacher|lehrer|lehrerin)\b/g,"").replace(/[^a-z0-9äöüß]+/g,"").trim();
+}
+function teacherOwnsLesson(lesson, teacher){
+  if(!lesson || !teacher) return false;
+  const assigned=normalizeTeacherName(lesson.teacher);
+  const names=[teacher.name,teacher.username].map(normalizeTeacherName).filter(Boolean);
+  return !!assigned && names.includes(assigned);
+}
+
+function teacherLessonModal(sid,lid,week){
+  const s=data.schools.find(x=>x.id===sid); if(!s)return;
+  const clicked=s.lessons.find(x=>x.id===lid); if(!clicked)return;
+  
+  const tObj = data.teachers.find(x => x.id === session.teacherId);
+  const teacherSubjects = tObj && tObj.subject ? tObj.subject.split(',').map(x=>x.trim().toLowerCase()) : [];
+  const subjectAllowed = teacherSubjects.length === 0 || teacherSubjects.includes(clicked.subject.trim().toLowerCase());
+  const lessonAssigned = teacherOwnsLesson(clicked,tObj);
+  const allowed = subjectAllowed && lessonAssigned;
+
+  if(!allowed){
+    const reason = !lessonAssigned
+      ? `Diese Stunde ist ${clicked.teacher ? `<b>${esc(clicked.teacher)}</b>` : "einer anderen Lehrkraft"} zugewiesen. Du kannst nur deine eigenen Stunden bearbeiten.`
+      : `Du unterrichtest das Fach <b>${esc(clicked.subject)}</b> nicht.`;
+    modal(`<h2>Keine Berechtigung</h2>
+      <div class="notice" style="margin:20px 0">${reason}</div>
+      <div class="row" style="justify-content:flex-end"><button class="primary" onclick="closeModal()">Schließen</button></div>`);
+    return;
+  }
+
+  const ov=data.weekOverrides.find(o=>o.lessonId===clicked.id&&o.week===week);
+  const existingHw = ov && ov.homeworkId ? data.homework.find(h => h.id === ov.homeworkId) : null;
+  const isExamActive = ov?.isExam !== null && ov?.isExam !== undefined ? ov.isExam : Boolean(clicked?.isExam);
+
+  modal(`<h2>Stunde bearbeiten: ${esc(clicked.subject)}</h2>
+    <div class="muted" style="margin-bottom:16px">Lehrer-Bereich: Hausaufgabe & Klassenarbeit für Woche (${week})</div>
+    
+    <div class="item" style="padding:14px;background:rgba(19,27,46,0.4);margin-bottom:16px">
+      <div><b>Klasse:</b> ${esc(s.classes.find(c=>c.id===clicked.classId)?.name||"-")}</div>
+      <div><b>Lehrkraft:</b> ${esc(clicked.teacher)} | <b>Raum:</b> ${esc(clicked.room||"-")}</div>
+    </div>
+
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:16px"><input type="checkbox" id="mIsExam" style="width:auto" ${isExamActive?"checked":""}> <b>Als Klassenarbeit markieren (für diese Woche)</b></label>
+
+    <input type="hidden" id="mHwId" value="${esc(ov?.homeworkId||"")}"/>
+    <label>Hausaufgabe für diese Woche</label><textarea id="mHwText" placeholder="z.B. S. 42 Nr. 5">${esc(existingHw?.text||"")}</textarea>
+    <label>Fällig am (Datum)</label><input id="mHwDate" type="date" value="${esc(existingHw?.date||"")}">
+
+    <div class="row" style="justify-content:flex-end;margin-top:20px">
+      <button class="secondary" onclick="closeModal()">Abbrechen</button>
+      <button class="primary" onclick="saveTeacherLesson('${sid}','${clicked.id}','${week}')">Speichern</button>
+    </div>`);
+}
+
+async function saveTeacherLesson(sid,lid,week){
+  const s=data.schools.find(x=>x.id===sid);
+  const clicked=s?.lessons.find(x=>x.id===lid);
+  if(!s || !clicked) return toast("Stunde nicht gefunden.");
+
+  const tObj=data.teachers.find(t=>t.id===session.teacherId);
+  if(!tObj) return toast("Lehrer-Sitzung ungültig.");
+
+  const isExam=document.getElementById("mIsExam")?.checked===true;
+  const hwText=document.getElementById("mHwText")?.value.trim()||"";
+  const hwDateRaw=document.getElementById("mHwDate")?.value||"";
+  const hwDate=hwDateRaw || null;
+
+  try{
+    const r=await fetch(SUPABASE_URL+"/rest/v1/rpc/teacher_save_lesson",{
+      method:"POST",
+      headers:{"apikey":SUPABASE_KEY,"Content-Type":"application/json"},
+      body:JSON.stringify({
+        p_teacher_id:session.teacherId,
+        p_lesson_id:lid,
+        p_week:week,
+        p_is_exam:isExam,
+        p_homework_text:hwText,
+        p_homework_date:hwDate
+      })
+    });
+
+    const raw=await r.text();
+    let payload=null;
+    try{payload=raw?JSON.parse(raw):null;}catch(e){}
+
+    if(!r.ok){
+      console.error("teacher_save_lesson:", raw);
+      const detail=payload?.message||payload?.error_description||payload?.hint||raw||"Unbekannter Supabase-Fehler";
+      throw new Error(detail);
+    }
+
+    await loadData();
+    closeModal();
+    render();
+    refreshTeacherTT();
+    toast("Erfolgreich gespeichert.");
+  }catch(e){
+    console.error("Fehler beim Speichern der Lehrer-Stunde:",e);
+    const msg=String(e?.message||"Unbekannter Fehler").replace(/^Error:\s*/,"");
+    toast("Fehler beim Speichern: "+msg.slice(0,120));
+  }
+}
+
+function studentLessonModal(sid,lid,week){
+  const s=data.schools.find(x=>x.id===sid); if(!s)return;
+  const l=s.lessons.find(x=>x.id===lid); if(!l)return;
+  const ov=lessonState(l,week);
+  const teacher=(ov.status==="substitution"?ov.subTeacher:null)||l.teacher;
+  const room=(ov.status==="substitution"?ov.subRoom:null)||l.room;
+  const isExam = ov.isExam !== null ? ov.isExam : l.isExam;
+  const hw = ov.homeworkId ? data.homework.find(h=>h.id===ov.homeworkId) : null;
+
+  let statusText = "Regulärer Unterricht";
+  let statusBadge = "";
+  if(ov.status==="cancelled") { statusText = "Diese Stunde fällt aus."; statusBadge = '<span class="badge red">Entfällt</span>'; }
+  else if(ov.status==="substitution") { statusText = "Vertretungsstunde"; statusBadge = '<span class="badge green">Vertretung</span>'; }
+
+  modal(`<h2>${esc(l.subject)}</h2>
+    <div class="muted" style="margin-bottom:16px">Stunden-Details für die ausgewählte Woche</div>
+    
+    <div style="display:grid;gap:12px">
+      <div class="item" style="padding:14px">
+        <div class="muted small">STATUS</div>
+        <div style="font-weight:600;margin-top:4px;display:flex;align-items:center;gap:8px">${statusText} ${statusBadge}</div>
+      </div>
+      <div class="item" style="padding:14px">
+        <div class="muted small">LEHRKRAFT & RAUM</div>
+        <div style="font-weight:600;margin-top:4px">${esc(teacher)} ${room ? "· Raum "+esc(room) : ""}</div>
+      </div>
+      ${isExam ? `
+        <div class="item" style="padding:14px;background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3)">
+          <div class="muted small" style="color:#fcd34d">KLASSENARBEIT</div>
+          <div style="font-weight:600;margin-top:4px;color:#fcd34d">In dieser Woche wird eine Klassenarbeit geschrieben!</div>
+        </div>
+      ` : ""}
+      <div class="item" style="padding:14px">
+        <div class="muted small">HAUSAUFGABE (FÜR DIESE WOCHE)</div>
+        <div style="font-weight:600;margin-top:4px">${hw ? esc(hw.text) + (hw.date ? " (Fällig: "+esc(hw.date)+")" : "") : "Keine Hausaufgabe für diese Woche hinterlegt."}</div>
+      </div>
+    </div>
+
+    <div class="row" style="justify-content:flex-end;margin-top:20px"><button class="primary" onclick="closeModal()">Schließen</button></div>`);
+}
+
+function lessonModal(sid,lid,day,time,week){
+  const s=data.schools.find(x=>x.id===sid); if(!s)return;
+  const clicked=s.lessons.find(x=>x.id===lid);
+  const cid=clicked?.classId||document.getElementById("adminClass")?.value||document.getElementById("directorClassSelect")?.value;
+  const d=clicked?.day??day??0, ti=clicked?.time??time??0;
+  const ov=clicked?data.weekOverrides.find(o=>o.lessonId===clicked.id&&o.week===week):null;
+  const existingHw = ov && ov.homeworkId ? data.homework.find(h => h.id === ov.homeworkId) : null;
+  const isExamActive = ov?.isExam !== null && ov?.isExam !== undefined ? ov.isExam : Boolean(clicked?.isExam);
+  
+  const currentColor = clicked?.color || "border-left:4px solid #3b82f6;background:rgba(37,99,235,0.15);color:#60a5fa;";
+  const schoolSubjects = getSchoolSubjects(sid);
+
+  modal(`<h2>${clicked?"Stunde bearbeiten":"Stunde hinzufügen"}</h2>
+    <label>Klasse</label><select id="mLessonClass">${s.classes.map(c=>`<option value="${c.id}" ${c.id===cid?"selected":""}>${esc(c.name)}</option>`).join("")}</select>
+    <label>Tag</label><select id="mDay">${DAYS.map((x,i)=>`<option value="${i}" ${i===d?"selected":""}>${x}</option>`).join("")}</select>
+    <label>Zeit</label><select id="mTime">${TIMES.map((x,i)=>`<option value="${i}" ${i===ti?"selected":""}>${x}</option>`).join("")}</select>
+    
+    <label>Fach (Aus System wählen oder eingeben)</label>
+    <input id="mLSubject" list="subjectList" value="${esc(clicked?.subject||"")}" placeholder="z.B. Mathematik">
+    <datalist id="subjectList">
+      ${schoolSubjects.map(sub => `<option value="${esc(sub)}">`).join("")}
+    </datalist>
+
+    <label>Lehrer</label><input id="mLTeacher" value="${esc(clicked?.teacher||"")}">
+    <label>Raum</label><input id="mLRoom" value="${esc(clicked?.room||"")}">
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:16px"><input type="checkbox" id="mIsExam" style="width:auto" ${isExamActive?"checked":""}> <b>Als Klassenarbeit markieren (für diese Woche)</b></label>
+    <label>Farbe / Stil</label><select id="mLColor">
+      <option value="border-left:4px solid #3b82f6;background:rgba(37,99,235,0.15);color:#60a5fa;" ${currentColor.includes('37,99,235')&&!currentColor.includes('147')?"selected":""}>Kräftiges Blau</option>
+      <option value="border-left:4px solid #60a5fa;background:rgba(59,130,246,0.1);color:#93c5fd;" ${currentColor.includes('59,130,246,0.1')?"selected":""}>Leichtes Hellblau</option>
+      <option value="border-left:4px solid #10b981;background:rgba(16,185,129,0.15);color:#6ee7b7;" ${currentColor.includes('16,185,129')?"selected":""}>Kräftiges Grün</option>
+      <option value="border-left:4px solid #14b8a6;background:rgba(20,184,166,0.2);color:#5eead4;" ${currentColor.includes('14b8a6')?"selected":""}>Sanftes Türkis</option>
+      <option value="border-left:4px solid #f59e0b;background:rgba(245,158,11,0.2);color:#fcd34d;" ${currentColor.includes('245,158,11')?"selected":""}>Kräftiges Gelb / Orange</option>
+      <option value="border-left:4px solid #d97706;background:rgba(180,83,9,0.25);color:#fde68a;" ${currentColor.includes('180,83,9')||currentColor.includes('d97706')?"selected":""}>Kräftiges Braun</option>
+      <option value="border-left:4px solid #9333ea;background:rgba(147,51,234,0.2);color:#c084fc;" ${currentColor.includes('147,51,234')?"selected":""}>Kräftiges Lila</option>
+      <option value="border-left:4px solid #ef4444;background:rgba(239,68,68,0.15);color:#fca5a5;" ${currentColor.includes('239,68,68')?"selected":""}>Kräftiges Rot</option>
+      <option value="border-left:4px solid #64748b;background:rgba(100,116,139,0.2);color:#cbd5e1;" ${currentColor.includes('64748b')||currentColor.includes('100,116,139')?"selected":""}>Klassisches Grau / Dunkelgrau</option>
+    </select>
+    <label>Status für diese Woche (${week})</label><select id="mLStatus" onchange="toggleSubFields()">
+      <option value="normal" ${!ov||ov.status==="normal"?"selected":""}>Normal</option>
+      <option value="cancelled" ${ov?.status==="cancelled"?"selected":""}>Entfällt</option>
+      <option value="substitution" ${ov?.status==="substitution"?"selected":""}>Vertretung</option>
+    </select>
+    <div id="subFields" style="display:${ov?.status==="substitution"?"block":"none"}">
+      <label>Vertretungs-Lehrer</label><input id="mSubTeacher" value="${esc(ov?.subTeacher||"")}" placeholder="z.B. Herr Müller">
+      <label>Vertretungs-Raum</label><input id="mSubRoom" value="${esc(ov?.subRoom||"")}" placeholder="z.B. R204">
+    </div>
+
+    ${clicked ? `
+      <hr style="margin:20px 0;border:0;border-top:1px solid var(--line)">
+      <h3 style="font-size:15px;margin-bottom:8px">Hausaufgabe für diese Woche (${week})</h3>
+      <input type="hidden" id="mHwId" value="${esc(ov?.homeworkId||"")}"/>
+      <label>Hausaufgaben-Text</label><textarea id="mHwText" placeholder="z.B. S. 42 Nr. 5">${esc(existingHw?.text||"")}</textarea>
+      <label>Fällig am (Datum)</label><input id="mHwDate" type="date" value="${esc(existingHw?.date||"")}">
+    ` : ''}
+
+    <div class="row" style="justify-content:flex-end;margin-top:20px">
+      ${clicked?`<button class="danger" onclick="deleteLesson('${sid}','${clicked.id}')">Löschen</button>`:""}
+      <button class="secondary" onclick="closeModal()">Abbrechen</button><button class="primary" onclick="saveLesson('${sid}','${clicked?.id||""}','${week}')">Speichern</button>
+    </div>`);
+}
+
+function toggleSubFields(){
+  const status=document.getElementById("mLStatus").value;
+  document.getElementById("subFields").style.display=status==="substitution"?"block":"none";
+}
+
+async function saveLesson(sid,lid,week){
+  const classId=document.getElementById("mLessonClass").value;
+  const common={school_id:sid,class_id:classId,day:+document.getElementById("mDay").value,time_index:+document.getElementById("mTime").value};
+  const subject=document.getElementById("mLSubject").value.trim(),teacher=document.getElementById("mLTeacher").value.trim(),room=document.getElementById("mLRoom").value.trim(),color=document.getElementById("mLColor").value;
+  const isExam=document.getElementById("mIsExam").checked;
+  if(!subject)return toast("Fach fehlt.");
+  
+  try{
+    let id=lid;
+    const notePacked=packLessonNote("",color,isExam);
+    const row={...common,subject,teacher,room,note:notePacked};
+    
+    if(id) await api("lessons?id=eq."+encodeURIComponent(id),{method:"PATCH",body:JSON.stringify(row)});
+    else {const r=await api("lessons",{method:"POST",body:JSON.stringify(row)});id=r[0]?.id}
+    
+    if(id){
+      let homeworkId = "";
+      const hwTextElem = document.getElementById("mHwText");
+      if(hwTextElem){
+        const hwText = hwTextElem.value.trim();
+        const hwDate = document.getElementById("mHwDate")?.value || "";
+        const existingHwId = document.getElementById("mHwId")?.value || "";
+        
+        if(hwText){
+          const hwTitle = `${subject} Hausaufgabe`;
+          if(existingHwId){
+            await api("homework?id=eq."+encodeURIComponent(existingHwId),{method:"PATCH",body:JSON.stringify({title:hwTitle,text:hwText,due_date:hwDate,class_id:classId})});
+            homeworkId = existingHwId;
+          } else {
+            const res = await api("homework",{method:"POST",body:JSON.stringify({title:hwTitle,text:hwText,due_date:hwDate,class_id:classId})});
+            if(res && res[0]) homeworkId = res[0].id;
+          }
+        } else if(existingHwId){
+          await api("homework?id=eq."+encodeURIComponent(existingHwId),{method:"DELETE"});
+        }
+      }
+
+      const existingOv = data.weekOverrides.find(o=>o.lessonId===id&&o.week===week);
+      const st=document.getElementById("mLStatus").value;
+      const subTeacher=document.getElementById("mSubTeacher")?.value.trim()||"";
+      const subRoom=document.getElementById("mSubRoom")?.value.trim()||"";
+
+      if(existingOv){
+        await api("week_overrides?id=eq."+encodeURIComponent(existingOv.id),{method:"PATCH",body:JSON.stringify({status:st,sub_teacher:subTeacher,sub_room:subRoom,is_exam:isExam,homework_id:homeworkId||null})});
+      } else if(st!=="normal" || isExam || homeworkId){
+        await api("week_overrides",{method:"POST",body:JSON.stringify({lesson_id:id,week,status:st,sub_teacher:subTeacher,sub_room:subRoom,is_exam:isExam,homework_id:homeworkId||null})});
+      }
+    }
+    
+    await loadData();closeModal();render();
+    if(session.type==="admin")refreshAdminTT();
+    if(session.type==="director")refreshDirectorTT();
+    toast("Gespeichert.");
+  }catch(e){toast("Fehler beim Speichern.")}
+}
+
+async function deleteLesson(sid,lid){
+  if(!confirm("Stunde löschen?"))return;
+  try{await api("lessons?id=eq."+encodeURIComponent(lid),{method:"DELETE"});await loadData();closeModal();render();refreshAdminTT();toast("Gelöscht.");}catch(e){toast("Fehler.")}
+}
+
+function homeworkList(admin){
+  let arr=data.homework;
+  return arr.length?arr.map((h,i)=>`<div class="item"><div class="row between"><b style="color:#fff">${esc(h.title)}</b><span class="small muted">${esc(h.date||"")}</span></div><div class="muted" style="margin-top:6px">${esc(h.text)}</div><div class="small" style="margin-top:8px;color:#60a5fa">Klasse: ${esc(h.className||"Alle")}</div>${admin?`<button class="danger" style="margin-top:12px" onclick="deleteHomework('${h.id}')">Löschen</button>`:""}</div>`).join(""):'<div class="notice">Keine Hausaufgaben vorhanden.</div>';
+}
+function homeworkModal(){
+  let schoolObj=data.schools[0];
+  let classOpts=schoolObj?schoolObj.classes.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join(""):"";
+  modal(`<h2>Hausaufgabe aufgeben</h2>
+    <label>Titel / Fach</label><input id="hTitle" placeholder="z.B. Mathematik Hausaufgabe">
+    <label>Beschreibung</label><textarea id="hText"></textarea>
+    <label>Fällig am</label><input id="hDate" type="date">
+    <label>Klasse</label><select id="hClass">${classOpts}</select>
+    <div class="row" style="justify-content:flex-end;margin-top:20px"><button class="secondary" onclick="closeModal()">Abbrechen</button><button class="primary" onclick="saveHomework()">Veröffentlichen</button></div>`);
+}
+async function saveHomework(){
+  let title=document.getElementById("hTitle").value.trim(),text=document.getElementById("hText").value.trim(),cid=document.getElementById("hClass").value;
+  if(!title)return toast("Titel fehlt.");
+  try{
+    await api("homework",{method:"POST",body:JSON.stringify({title,text,due_date:document.getElementById("hDate").value,class_id:cid})});
+    await loadData();closeModal();render();toast("Hausaufgabe veröffentlicht.");
+  }catch(e){toast("Fehler.")}
+}
+async function deleteHomework(id){
+  try{await api("homework?id=eq."+encodeURIComponent(id),{method:"DELETE"});await loadData();render();toast("Gelöscht.");}catch(e){toast("Fehler.")}
+}
+
+function messageList(admin){
+  return data.messages.length?data.messages.map((m,i)=>`<div class="item"><b style="color:#fff">${esc(m.title)}</b><div style="margin-top:6px">${esc(m.text)}</div><div class="small muted" style="margin-top:8px">${esc(m.date)}</div>${admin?`<button class="danger" style="margin-top:12px" onclick="deleteMessage(${i})">Löschen</button>`:""}</div>`).join(""):'<div class="notice">Keine Nachrichten.</div>';
+}
+function messageModal(){
+  modal(`<h2>Nachricht erstellen</h2><label>Titel</label><input id="msgTitle"><label>Text</label><textarea id="msgText"></textarea><div class="row" style="justify-content:flex-end;margin-top:20px"><button class="secondary" onclick="closeModal()">Abbrechen</button><button class="primary" onclick="saveMessage()">Senden</button></div>`);
+}
+async function saveMessage(){
+  let title=document.getElementById("msgTitle").value.trim(),text=document.getElementById("msgText").value.trim();if(!title||!text)return;
+  try{await api("messages",{method:"POST",body:JSON.stringify({title,text})});await loadData();closeModal();render();toast("Gesendet.");}catch(e){toast("Fehler.")}
+}
+async function deleteMessage(i){
+  let m=data.messages[i];if(!m)return;
+  try{await api("messages?id=eq."+encodeURIComponent(m.id),{method:"DELETE"});await loadData();render();toast("Gelöscht.");}catch(e){toast("Fehler.")}
+}
+
+function problemReportsList(){
+  if(!data.problemReports?.length) return '<div class="notice">Noch keine Probleme gemeldet.</div>';
+  return data.problemReports.map(r=>{const school=data.schools.find(s=>s.id===r.schoolId);return `<div class="item"><div class="row between wrap"><b style="color:#fff">${esc(r.title)}</b><span class="small muted">${esc(r.createdAt?new Date(r.createdAt).toLocaleString("de-DE"):"")}</span></div><div class="muted" style="margin-top:6px">Gemeldet von: ${esc(r.reporterType)}${r.reporterName?" · "+esc(r.reporterName):""}${school?" · "+esc(school.name):""}</div><p style="white-space:pre-wrap;margin:10px 0">${esc(r.description)}</p><div class="row between wrap"><span class="badge">Status: ${esc(r.status)}</span><button class="danger" onclick="deleteProblemReport('${r.id}')">Meldung löschen</button></div></div>`}).join("");
+}
+async function loadProblemReports(){
+  try{const rows=await api("problem_reports?select=*&order=created_at.desc");data.problemReports=rows.map(r=>({id:r.id,schoolId:r.school_id||"",reporterType:r.reporter_type||"Unbekannt",reporterName:r.reporter_name||"",title:r.title||"",description:r.description||"",status:r.status||"offen",createdAt:r.created_at}));const el=document.getElementById("problemReportsList");if(el)el.innerHTML=problemReportsList();}
+  catch(e){console.error(e);const el=document.getElementById("problemReportsList");if(el)el.innerHTML='<div class="notice">Problemmeldungen konnten nicht geladen werden. Bitte prüfe die Tabelle problem_reports und ihre Supabase-Berechtigungen.</div>';}
+}
+async function submitProblemReport(){
+  const title=(document.getElementById("problemTitle")?.value||"").trim();
+  const description=(document.getElementById("problemDescription")?.value||"").trim();
+  if(!title||!description)return toast("Bitte Betreff und Beschreibung ausfüllen.");
+  const sId=session?.schoolId||data.schools.find(s=>s.classes.some(c=>c.id===session?.classId))?.id||null;
+  let reporterType=session?.type==="admin"?"Administrator":session?.type==="director"?"Schuldirektor":session?.type==="teacher"?"Lehrkraft":"Schüler/Klasse";
+  let reporterName=session?.type==="director"?(session.name||""):session?.type==="teacher"?(data.teachers.find(t=>t.id===session.teacherId)?.name||""):session?.type==="class"?(data.schools.find(s=>s.id===session.schoolId)?.classes.find(c=>c.id===session.classId)?.name||""):"";
+  try{
+    await api("problem_reports",{method:"POST",headers:{"Prefer":"return=representation"},body:JSON.stringify({school_id:sId,reporter_type:reporterType,reporter_name:reporterName,title,description,status:"offen"})});
+    document.getElementById("problemTitle").value="";document.getElementById("problemDescription").value="";toast("Problem wurde gemeldet.");
+  }catch(e){console.error(e);toast("Meldung fehlgeschlagen. Prüfe die Supabase-Tabelle und Berechtigungen.");}
+}
+async function deleteProblemReport(id){
+  if(session?.type!=="admin")return toast("Nur Administratoren können Meldungen löschen.");
+  if(!confirm("Diese Problemmeldung wirklich löschen?"))return;
+  try{await api("problem_reports?id=eq."+encodeURIComponent(id),{method:"DELETE"});await loadProblemReports();toast("Meldung gelöscht.");}
+  catch(e){console.error(e);toast("Löschen fehlgeschlagen. Prüfe die Supabase-Berechtigungen.");}
+}
+
+function calendarList(){
+  return data.calendar.length?data.calendar.map((e,i)=>`<div class="item"><div class="row between"><b style="color:#fff">${esc(e.title)}</b><span class="small muted">${esc(e.date)}</span></div><div class="muted" style="margin-top:6px">${esc(e.text||"")}</div>${session?.type==="admin"?`<button class="danger" style="margin-top:12px" onclick="deleteCalendar(${i})">Löschen</button>`:""}</div>`).join(""):(session?.type==="admin"?'<div class="notice">Noch keine Schulveranstaltungen eingetragen. Klicke oben auf „+ Schulveranstaltung eintragen“.</div>':'<div class="notice">Keine Schulveranstaltungen eingetragen.</div>');
+}
+function calendarModal(){
+  const schoolOptions = data.schools.map(s=>`<option value="${s.id}" ${s.id===session?.schoolId?"selected":""}>${esc(s.name)}</option>`).join("");
+  modal(`<h2>Schulveranstaltung eintragen</h2>
+    <label>Schule</label><select id="calSchool">${schoolOptions}</select>
+    <label>Art der Veranstaltung</label><select id="calType"><option value="event">Schulveranstaltung</option><option value="trip">Ausflug</option><option value="sports">Sportveranstaltung</option><option value="exam">Prüfung / Projekttag</option></select>
+    <label>Titel</label><input id="calTitle" placeholder="z. B. Ausflug ins Museum">
+    <label>Datum</label><input id="calDate" type="date" required>
+    <label>Beschreibung / Hinweise</label><textarea id="calText" placeholder="Treffpunkt, Uhrzeit, was mitzubringen ist …"></textarea>
+    <div class="row" style="justify-content:flex-end;margin-top:20px"><button class="secondary" onclick="closeModal()">Abbrechen</button><button class="primary" onclick="saveCalendar()">Veranstaltung speichern</button></div>`);
+}
+async function saveCalendar(){
+  const schoolId=document.getElementById("calSchool")?.value;
+  const kind=document.getElementById("calType")?.value||"event";
+  const rawTitle=document.getElementById("calTitle")?.value.trim();
+  const date=document.getElementById("calDate")?.value;
+  const textValue=document.getElementById("calText")?.value.trim()||"";
+  if(!schoolId||!rawTitle||!date)return toast("Bitte Schule, Titel und Datum ausfüllen.");
+  const prefix={event:"🎓 Schulveranstaltung",trip:"🚌 Ausflug",sports:"🏅 Sportveranstaltung",exam:"📚 Prüfung / Projekttag"}[kind]||"🎓 Schulveranstaltung";
+  const title=prefix+": "+rawTitle;
+  try{
+    await api("calendar",{method:"POST",headers:{"Prefer":"return=representation"},body:JSON.stringify({school_id:schoolId,title,event_date:date,text:textValue})});
+    await loadData();closeModal();render();toast("Veranstaltung gespeichert und im Stundenplan eingetragen.");
+  }catch(e){toast("Speichern fehlgeschlagen: "+String(e.message||e).slice(0,160));}
+}
+async function deleteCalendar(i){
+  let e=data.calendar[i];if(!e)return;
+  try{await api("calendar?id=eq."+encodeURIComponent(e.id),{method:"DELETE"});await loadData();render();toast("Gelöscht.");}catch(e){toast("Fehler.")}
+}
+
+function adminAnnouncementsList(){
+  let listHtml = "";
+  data.schools.forEach(s => {
+    (s.announcements||[]).forEach((ann, idx) => {
+      listHtml += `<div class="item"><div class="row between"><div><b style="color:#fff">${esc(s.name)}:</b> ${esc(ann)}</div><button class="danger" onclick="deleteAnnouncement('${s.id}', ${idx})">Löschen</button></div></div>`;
+    });
+  });
+  return listHtml || '<div class="notice">Keine Ankündigungen vorhanden.</div>';
+}
+
+function announcementModal(){
+  let schoolOpts = data.schools.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join("");
+  modal(`<h2>Ankündigung hinzufügen</h2>
+    <label>Schule</label><select id="annSchool">${schoolOpts}</select>
+    <label>Ankündigung Text</label><textarea id="annText" placeholder="z.B. Morgen entfällt die 1. Stunde..."></textarea>
+    <div class="row" style="justify-content:flex-end;margin-top:20px">
+      <button class="secondary" onclick="closeModal()">Abbrechen</button>
+      <button class="primary" onclick="saveAnnouncement()">Veröffentlichen</button>
+    </div>`);
+}
+
+async function saveAnnouncement(){
+  let sid = document.getElementById("annSchool").value;
+  let text = document.getElementById("annText").value.trim();
+  if(!text) return toast("Text eingeben.");
+  let s = data.schools.find(x => x.id === sid);
+  if(!s) return;
+  let updatedAnnouncements = [...(s.announcements||[]), text];
+  try{
+    await api("schools?id=eq."+encodeURIComponent(sid),{method:"PATCH",body:JSON.stringify({announcements: updatedAnnouncements})});
+    await loadData(); closeModal(); render(); toast("Ankündigung hinzugefügt.");
+  }catch(e){toast("Fehler beim Speichern.")}
+}
+
+async function deleteAnnouncement(sid, index){
+  if(!confirm("Ankündigung löschen?")) return;
+  let s = data.schools.find(x => x.id === sid);
+  if(!s) return;
+  let updatedAnnouncements = [...(s.announcements||[])];
+  updatedAnnouncements.splice(index, 1);
+  try{
+    await api("schools?id=eq."+encodeURIComponent(sid),{method:"PATCH",body:JSON.stringify({announcements: updatedAnnouncements})});
+    await loadData(); render(); toast("Gelöscht.");
+  }catch(e){toast("Fehler beim Löschen.")}
+}
+
+(async()=>{
+  try{
+    restorePersistentState();
+    await loadData();
+    if(session?.type==="class"){
+      const school=data.schools.find(s=>s.id===session.schoolId);
+      if(!school?.classes.some(c=>c.id===session.classId)) session=null;
+    }
+    if(session?.type==="teacher"){
+      const school=data.schools.find(s=>s.id===session.schoolId);
+      if(!school||!data.teachers.some(t=>t.id===session.teacherId)) session=null;
+    }
+    if(session?.type==="director" && !data.schools.some(s=>s.id===session.schoolId)) session=null;
+    savePersistentState(); render();
+    if(session) startRefresh();
+  }catch(e){
+    console.error("Init Error:", e);
+    session=null; currentPage=null;
+    try{localStorage.removeItem(SESSION_STORAGE_KEY);localStorage.removeItem(PAGE_STORAGE_KEY);}catch(err){}
+    render();
+  }
+})();
+</script>
+</body>
+</html>

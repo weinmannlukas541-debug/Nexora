@@ -1,0 +1,6 @@
+{
+  "name": "Nexora",
+  "description": "Schulorganisation mit Stundenplan, Klassenbuch, Hausaufgaben, Noten und Supabase-Anbindung.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
